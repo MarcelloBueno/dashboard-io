@@ -1,0 +1,266 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ETN - Gest&#227;o de Projetos IO</title><style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--red:#DA291C;--blue:#0097A9;--orange:#F5842B;--green:#27AE60;--dark:#2D291C;--gray:#A7A8AA;--light:#F4F4F4;--white:#fff;--shadow:0 2px 8px rgba(0,0,0,.08)}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--light);color:#333;display:flex;min-height:100vh}
+.sb{width:250px;background:var(--dark);color:#fff;position:fixed;height:100vh;z-index:10;overflow-y:auto}
+.sb .logo{text-align:center;padding:22px 16px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb .logo h2{color:var(--red);font-size:1.2em}.sb .logo p{color:var(--gray);font-size:.75em;margin-top:4px}
+.sb nav a{display:block;padding:12px 22px;color:var(--gray);text-decoration:none;font-size:.9em;transition:.2s}
+.sb nav a:hover,.sb nav a.active{background:rgba(255,255,255,.08);color:#fff;border-left:3px solid var(--red)}
+.mn{margin-left:250px;flex:1;display:flex;flex-direction:column}
+.hd{background:#fff;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow);position:sticky;top:0;z-index:5}
+.hd h1{font-size:1.1em;color:var(--dark)}.hd .av{width:34px;height:34px;background:var(--red);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8em}
+.ct{padding:22px 28px;flex:1}
+.pg{display:none}.pg.active{display:block}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px}
+.sc{background:#fff;border-radius:10px;padding:18px;box-shadow:var(--shadow);border-left:4px solid var(--blue)}
+.sc.g{border-left-color:var(--green)}.sc.o{border-left-color:var(--orange)}.sc.r{border-left-color:var(--red)}
+.sc h3{font-size:.78em;color:var(--gray);text-transform:uppercase;letter-spacing:.4px}.sc .v{font-size:1.9em;font-weight:700;color:var(--dark);margin-top:3px}
+.fl{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.fl input,.fl select{padding:9px 12px;border:1px solid #ddd;border-radius:8px;font-size:.88em;background:#fff}.fl input{flex:1;min-width:180px}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.cd{background:#fff;border-radius:12px;padding:18px;box-shadow:var(--shadow);cursor:pointer;transition:.2s}
+.cd:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.1)}
+.cd .ch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}.cd .ch h3{font-size:.92em;color:var(--dark);flex:1;margin-right:6px}
+.bd{padding:3px 9px;border-radius:10px;font-size:.7em;font-weight:600;color:#fff;white-space:nowrap}
+.bd.ativo{background:var(--blue)}.bd.concluido{background:var(--green)}.bd.planejamento{background:var(--orange)}.bd.pausado,.bd.pendente{background:var(--gray)}
+.ds{font-size:.82em;color:#666;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pb{background:#eee;border-radius:6px;height:6px;overflow:hidden;margin-bottom:8px}.pb .fi{height:100%;border-radius:6px}
+.mt{display:flex;justify-content:space-between;font-size:.78em;color:var(--gray)}
+.dh{background:#fff;border-radius:12px;padding:22px;box-shadow:var(--shadow);margin-bottom:18px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.dh .pc{flex-shrink:0;position:relative;width:100px;height:100px}.dh .inf{flex:1;min-width:240px}
+.dh .inf h2{font-size:1.2em;color:var(--dark);margin-bottom:5px}
+.dh .mr{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:.84em;color:#666}
+.tb{display:flex;background:#fff;border-radius:10px 10px 0 0;box-shadow:var(--shadow);overflow-x:auto}
+.tb button{padding:12px 18px;border:none;background:transparent;font-size:.86em;color:var(--gray);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+.tb button:hover{color:var(--dark)}.tb button.active{color:var(--red);border-bottom-color:var(--red);font-weight:600}
+.tc{background:#fff;border-radius:0 0 10px 10px;padding:22px;box-shadow:var(--shadow);min-height:180px}
+.btn{padding:9px 18px;border:none;border-radius:8px;font-size:.88em;cursor:pointer;font-weight:600}.btn-p{background:var(--red);color:#fff}.btn-s{background:var(--blue);color:#fff}
+.btn-b{background:transparent;color:var(--gray);border:1px solid var(--gray);margin-bottom:14px}
+.phc{border:1px solid #eee;border-radius:10px;margin-bottom:10px;overflow:hidden}
+.phh{padding:12px 16px;background:var(--light);display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.phb{padding:14px 16px;display:none}.phb.open{display:block}
+table{width:100%;border-collapse:collapse;font-size:.84em}th{background:var(--light);padding:8px;text-align:left;font-weight:600}td{padding:8px;border-bottom:1px solid #f0f0f0}
+.tl{display:flex;gap:12px;margin-bottom:14px;position:relative}
+.tl::before{content:'';position:absolute;left:14px;top:30px;bottom:-14px;width:2px;background:#eee}
+.tl:last-child::before{display:none}
+.tl .dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;z-index:1}
+.dg{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.dc{border:1px solid #eee;border-radius:10px;padding:14px;text-align:center;cursor:pointer}.dc:hover{border-color:var(--blue)}
+.fg{margin-bottom:14px}.fg label{display:block;font-weight:600;margin-bottom:5px;font-size:.86em}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1px solid #ddd;border-radius:8px;font-size:.88em;font-family:inherit}.fg textarea{resize:vertical;min-height:70px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.toast{position:fixed;bottom:28px;right:28px;background:var(--dark);color:#fff;padding:12px 22px;border-radius:10px;font-size:.88em;box-shadow:0 4px 16px rgba(0,0,0,.2);transform:translateY(100px);opacity:0;transition:.3s;z-index:100}
+.toast.show{transform:translateY(0);opacity:1}
+.ol{list-style:none;padding:0}.ol li{padding:7px 0;border-bottom:1px solid #f5f5f5;padding-left:18px;position:relative;font-size:.88em}
+.ol li::before{content:'\2713';position:absolute;left:0;color:var(--green);font-weight:700}
+.ig{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.ii{padding:10px;background:var(--light);border-radius:8px}.ii .lb{font-size:.75em;color:var(--gray);text-transform:uppercase}.ii .vl{font-size:.95em;font-weight:600;color:var(--dark);margin-top:3px}
+@media(max-width:768px){.sb{display:none}.mn{margin-left:0}.fl{flex-direction:column}.fr{grid-template-columns:1fr}.dh{flex-direction:column}}
+</style></head><body>
+<aside class="sb"><div class="logo"><h2>ETN Solu&#231;&#245;es</h2><p>IO &#8211; Intelig&#234;ncia Operacional</p></div>
+<nav><a href="#" class="active" onclick="nav('dash',this)">&#9776; Dashboard</a><a href="#" onclick="nav('met',this)">&#9733; M&#233;tricas</a><a href="#" onclick="nav('novo',this)">&#10010; Novo Projeto</a></nav></aside>
+<div class="mn"><header class="hd"><h1 id="pT">Dashboard de Projetos</h1><div style="display:flex;align-items:center;gap:8px"><span>Marcello Kaio</span><div class="av">MK</div></div></header>
+<div class="ct">
+<div id="pDash" class="pg active"><div id="st" class="stats"></div><div class="fl"><input id="sI" placeholder="Buscar projeto..." oninput="fP()"><select id="fS" onchange="fP()"><option value="">Status</option><option value="Ativo">Ativo</option><option value="Conclu&#237;do">Conclu&#237;do</option><option value="Planejamento">Planejamento</option></select><select id="fC" onchange="fP()"><option value="">Categoria</option><option value="Data Analytics">Data Analytics</option><option value="Solu&#231;&#245;es">Solu&#231;&#245;es</option><option value="Automa&#231;&#227;o">Automa&#231;&#227;o</option></select></div><div id="cC" class="cg"></div></div>
+<div id="pDet" class="pg"><button class="btn btn-b" onclick="nav('dash',document.querySelector('.sb nav a'))">&#8592; Voltar</button><div id="dH" class="dh"></div><div class="tb" id="tB"><button class="active" onclick="sT('ov',this)">Vis&#227;o Geral</button><button onclick="sT('ph',this)">Fases</button><button onclick="sT('fb',this)">Feedback</button><button onclick="sT('dc',this)">Documentos</button><button onclick="sT('hi',this)">Hist&#243;rico</button><button onclick="sT('tl',this)">Timeline</button></div><div class="tc" id="tC"></div></div>
+<div id="pMet" class="pg"><h2 style="margin-bottom:18px">M&#233;tricas do Portf&#243;lio</h2><div id="mK" class="stats"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:18px"><div style="background:#fff;border-radius:12px;padding:18px;box-shadow:var(--shadow)"><h3 style="margin-bottom:12px;font-size:.95em">Status</h3><canvas id="cS" height="200"></canvas></div><div style="background:#fff;border-radius:12px;padding:18px;box-shadow:var(--shadow)"><h3 style="margin-bottom:12px;font-size:.95em">Categorias</h3><canvas id="cCa" height="200"></canvas></div></div><div style="background:#fff;border-radius:12px;padding:18px;box-shadow:var(--shadow);margin-top:18px"><h3 style="margin-bottom:12px;font-size:.95em">Progresso por Projeto</h3><canvas id="cP" height="280"></canvas></div></div>
+<div id="pNovo" class="pg"><h2 style="margin-bottom:18px">Criar Novo Projeto</h2><div style="background:#fff;border-radius:12px;padding:24px;box-shadow:var(--shadow);max-width:650px"><div class="fg"><label>T&#237;tulo</label><input id="nT"></div><div class="fg"><label>Descri&#231;&#227;o</label><textarea id="nD"></textarea></div><div class="fr"><div class="fg"><label>Categoria</label><select id="nC"><option>Data Analytics</option><option>Solu&#231;&#245;es</option><option>Automa&#231;&#227;o</option></select></div><div class="fg"><label>Respons&#225;vel</label><input id="nR"></div></div><div class="fr"><div class="fg"><label>In&#237;cio</label><input type="date" id="nI"></div><div class="fg"><label>Fim</label><input type="date" id="nF"></div></div><div class="fr"><div class="fg"><label>Prioridade</label><select id="nP"><option>Alta</option><option>M&#233;dia</option><option>Baixa</option></select></div><div class="fg"><label>Or&#231;amento</label><input id="nO" placeholder="R$ ou Interno"></div></div><button class="btn btn-p" onclick="crP()" style="margin-top:8px">Criar Projeto</button></div></div>
+</div></div><div class="toast" id="toast"></div>
+<script>
+var P=[
+{id:1,t:"Dashboard \u2013 Campanha RPPA Rede Externa",d:"Constru\u00e7\u00e3o do Dashboard da Campanha RPPA Rede Externa com indicadores chaves",o:["Aumento da qualidade t\u00e9cnica das opera\u00e7\u00f5es","Maior visibilidade sobre desempenho dos t\u00e9cnicos","Redu\u00e7\u00e3o de retrabalho","Melhoria na seguran\u00e7a operacional","Fortalecimento do papel do gestor"],c:"Data Analytics",r:"Robson Rodrigues",s:"Conclu\u00eddo",p:100,di:"2025-11-03",df:"2026-03-09",pr:"Alta",or:"Interno",
+f:[{n:"Levantamento de Requisitos",di:"2025-11-03",df:"2025-11-30",s:"Conclu\u00eddo",p:100,t:[{n:"Reuni\u00f5es com stakeholders",r:"Robson",pz:"2025-11-10",s:"Conclu\u00eddo"},{n:"Defini\u00e7\u00e3o de indicadores",r:"Robson",pz:"2025-11-20",s:"Conclu\u00eddo"},{n:"Documento de requisitos",r:"Robson",pz:"2025-11-30",s:"Conclu\u00eddo"}]},{n:"Modelagem e ETL",di:"2025-12-01",df:"2026-01-15",s:"Conclu\u00eddo",p:100,t:[{n:"Modelagem dimensional",r:"Robson",pz:"2025-12-15",s:"Conclu\u00eddo"},{n:"Pipeline ETL",r:"Robson",pz:"2026-01-10",s:"Conclu\u00eddo"}]},{n:"Desenvolvimento do Dashboard",di:"2026-01-16",df:"2026-02-20",s:"Conclu\u00eddo",p:100,t:[{n:"Layout e visualiza\u00e7\u00f5es",r:"Robson",pz:"2026-02-05",s:"Conclu\u00eddo"},{n:"Filtros e interatividade",r:"Robson",pz:"2026-02-15",s:"Conclu\u00eddo"}]},{n:"Valida\u00e7\u00e3o e Go-Live",di:"2026-02-21",df:"2026-03-09",s:"Conclu\u00eddo",p:100,t:[{n:"Valida\u00e7\u00e3o com gestores",r:"Robson",pz:"2026-03-01",s:"Conclu\u00eddo"},{n:"Publica\u00e7\u00e3o em produ\u00e7\u00e3o",r:"Robson",pz:"2026-03-09",s:"Conclu\u00eddo"}]}],
+fb:[{a:"Giovani Chiste",dt:"2026-03-10",n:5,cm:"Dashboard muito completo. Indicadores claros e objetivos."},{a:"Thadeu Martins",dt:"2026-03-11",n:4,cm:"Excelente trabalho. Sugest\u00e3o: incluir filtro por regional."}],
+dc:[{n:"Requisitos RPPA.pdf",tp:"PDF",dt:"2025-11-30"},{n:"Dashboard RPPA.pbix",tp:"Power BI",dt:"2026-03-09"}],
+h:[{dt:"2025-11-03",tx:"Projeto criado",tp:"c"},{dt:"2025-12-01",tx:"In\u00edcio da modelagem ETL",tp:"u"},{dt:"2026-01-16",tx:"In\u00edcio do desenvolvimento",tp:"u"},{dt:"2026-03-09",tx:"Projeto conclu\u00eddo",tp:"k"}]},
+
+{id:2,t:"Simplifica\u00e7\u00e3o Lan\u00e7amento de Turmas \u2013 JumpTargets",d:"Reduzir o volume de turmas por etapas, diminuindo lan\u00e7amentos no JumpTargets",o:["Redu\u00e7\u00e3o do tempo de publica\u00e7\u00e3o","Elimina\u00e7\u00e3o de cadastros duplicados","Maior consist\u00eancia nos relat\u00f3rios"],c:"Data Analytics",r:"Robson Rodrigues",s:"Ativo",p:45,di:"2026-03-02",df:"2026-03-31",pr:"Alta",or:"R$ 3.000",
+f:[{n:"Planejamento Or\u00e7ament\u00e1rio",di:"2026-03-02",df:"2026-03-09",s:"Conclu\u00eddo",p:100,t:[{n:"An\u00e1lise de custos",r:"Robson",pz:"2026-03-05",s:"Conclu\u00eddo"},{n:"Aprova\u00e7\u00e3o or\u00e7ament\u00e1ria",r:"Robson",pz:"2026-03-09",s:"Conclu\u00eddo"}]},{n:"Piloto",di:"2026-03-16",df:"2026-03-25",s:"Ativo",p:50,t:[{n:"Configura\u00e7\u00e3o do ambiente",r:"Robson",pz:"2026-03-18",s:"Conclu\u00eddo"},{n:"Testes com turmas",r:"Robson",pz:"2026-03-22",s:"Ativo"},{n:"Coleta de feedback",r:"Robson",pz:"2026-03-25",s:"Pendente"}]},{n:"Rollout",di:"2026-03-25",df:"2026-03-31",s:"Pendente",p:0,t:[{n:"Implanta\u00e7\u00e3o geral",r:"Robson",pz:"2026-03-28",s:"Pendente"}]}],
+fb:[],dc:[{n:"Proposta.docx",tp:"Word",dt:"2026-03-02"}],h:[{dt:"2026-03-02",tx:"Projeto criado",tp:"c"},{dt:"2026-03-16",tx:"In\u00edcio do piloto",tp:"u"}]},
+
+{id:3,t:"Informativo Semanal",d:"Retomar o envio dos informativos semanais sobre indicadores da \u00e1rea de treinamento",o:["Visibilidade dos indicadores cr\u00edticos","Comunica\u00e7\u00e3o recorrente","Engajamento dos gestores","Apoio \u00e0 tomada de decis\u00e3o","Desenvolvimento da aprendiz"],c:"Data Analytics",r:"Robson Rodrigues",s:"Ativo",p:35,di:"2026-01-28",df:"2026-03-16",pr:"M\u00e9dia",or:"Interno",
+f:[{n:"Defini\u00e7\u00e3o de Formato",di:"2026-01-28",df:"2026-02-10",s:"Conclu\u00eddo",p:100,t:[{n:"Sele\u00e7\u00e3o de KPIs",r:"Robson",pz:"2026-02-03",s:"Conclu\u00eddo"},{n:"Template do informativo",r:"Camilly",pz:"2026-02-10",s:"Conclu\u00eddo"}]},{n:"Produ\u00e7\u00e3o e Envio",di:"2026-02-11",df:"2026-03-16",s:"Ativo",p:40,t:[{n:"Coleta semanal de dados",r:"Camilly",pz:"2026-03-16",s:"Ativo"},{n:"Reda\u00e7\u00e3o e revis\u00e3o",r:"Robson",pz:"2026-03-16",s:"Ativo"}]}],
+fb:[],dc:[{n:"Template.pptx",tp:"PPT",dt:"2026-02-10"}],h:[{dt:"2026-01-28",tx:"Projeto criado",tp:"c"},{dt:"2026-02-10",tx:"Template definido",tp:"u"}]},
+
+{id:4,t:"Inser\u00e7\u00e3o dos Dados da Bernhoeft",d:"Consumir os dados dos certificados enviados para a Bernhoeft",o:["Conformidade documental","Confiabilidade e rastreabilidade"],c:"Data Analytics",r:"Robson Rodrigues",s:"Planejamento",p:0,di:"2026-03-16",df:"2026-04-20",pr:"Alta",or:"Interno",
+f:[{n:"An\u00e1lise de Dados",di:"2026-03-16",df:"2026-03-30",s:"Pendente",p:0,t:[{n:"Mapeamento de formatos",r:"Robson",pz:"2026-03-22",s:"Pendente"},{n:"Regras de valida\u00e7\u00e3o",r:"Robson",pz:"2026-03-30",s:"Pendente"}]},{n:"Desenvolvimento",di:"2026-04-01",df:"2026-04-20",s:"Pendente",p:0,t:[{n:"Pipeline de ingest\u00e3o",r:"Robson",pz:"2026-04-12",s:"Pendente"}]}],
+fb:[],dc:[],h:[{dt:"2026-03-16",tx:"Projeto criado",tp:"c"}]},
+
+{id:5,t:"Relat\u00f3rio \u2013 Curadoria de Conte\u00fados",d:"Dashboard com a curadoria dos conte\u00fados de treinamento",o:["Visibilidade do acervo","Redu\u00e7\u00e3o de conte\u00fado obsoleto","Priorizar atualiza\u00e7\u00f5es","Efici\u00eancia na produ\u00e7\u00e3o"],c:"Data Analytics",r:"Robson Rodrigues",s:"Planejamento",p:0,di:"2026-04-01",df:"2026-04-27",pr:"M\u00e9dia",or:"Interno",
+f:[{n:"Levantamento de Acervo",di:"2026-04-01",df:"2026-04-10",s:"Pendente",p:0,t:[{n:"Invent\u00e1rio de conte\u00fados",r:"Robson",pz:"2026-04-05",s:"Pendente"}]},{n:"Desenvolvimento do Dashboard",di:"2026-04-11",df:"2026-04-27",s:"Pendente",p:0,t:[{n:"Modelagem de dados",r:"Robson",pz:"2026-04-18",s:"Pendente"}]}],
+fb:[],dc:[],h:[{dt:"2026-04-01",tx:"Projeto criado",tp:"c"}]},
+
+{id:6,t:"Relat\u00f3rio \u2013 Voz do Campo",d:"Relat\u00f3rio peri\u00f3dico consolidando demandas e feedbacks das equipes de campo",o:["Visibilidade das demandas","Prioriza\u00e7\u00e3o de a\u00e7\u00f5es","Canal estruturado de feedback"],c:"Data Analytics",r:"Robson Rodrigues",s:"Planejamento",p:0,di:"2026-05-01",df:"2026-05-20",pr:"M\u00e9dia",or:"Interno",
+f:[{n:"Coleta e Organiza\u00e7\u00e3o",di:"2026-05-01",df:"2026-05-10",s:"Pendente",p:0,t:[{n:"Defini\u00e7\u00e3o de fontes",r:"Robson",pz:"2026-05-05",s:"Pendente"}]},{n:"Publica\u00e7\u00e3o",di:"2026-05-11",df:"2026-05-20",s:"Pendente",p:0,t:[{n:"Compila\u00e7\u00e3o e an\u00e1lise",r:"Robson",pz:"2026-05-16",s:"Pendente"}]}],
+fb:[],dc:[],h:[{dt:"2026-05-01",tx:"Projeto criado",tp:"c"}]},
+
+{id:7,t:"Fluxo Multiplica",d:"Automa\u00e7\u00e3o do ciclo completo das turmas Multiplica \u2013 da solicita\u00e7\u00e3o \u00e0 certifica\u00e7\u00e3o",o:["Elimina\u00e7\u00e3o de processos manuais","Redu\u00e7\u00e3o do tempo de ciclo","Padroniza\u00e7\u00e3o do fluxo","Rastreabilidade completa"],c:"Automa\u00e7\u00e3o",r:"Cristiano Verissimo Luz",s:"Conclu\u00eddo",p:100,di:"2026-01-01",df:"2026-04-30",pr:"Alta",or:"Interno",
+f:[{n:"Idea\u00e7\u00e3o e Escopo",di:"2026-01-01",df:"2026-01-20",s:"Conclu\u00eddo",p:100,t:[{n:"Mapeamento do processo",r:"Cristiano",pz:"2026-01-10",s:"Conclu\u00eddo"},{n:"Defini\u00e7\u00e3o do escopo",r:"Cristiano",pz:"2026-01-20",s:"Conclu\u00eddo"}]},{n:"Prepara\u00e7\u00e3o do Ambiente",di:"2026-01-21",df:"2026-02-10",s:"Conclu\u00eddo",p:100,t:[{n:"Config Power Automate",r:"Cristiano",pz:"2026-02-01",s:"Conclu\u00eddo"},{n:"Integra\u00e7\u00e3o SharePoint",r:"Cristiano",pz:"2026-02-10",s:"Conclu\u00eddo"}]},{n:"Desenvolvimento MVP",di:"2026-02-11",df:"2026-03-15",s:"Conclu\u00eddo",p:100,t:[{n:"Fluxo de solicita\u00e7\u00e3o",r:"Cristiano",pz:"2026-02-28",s:"Conclu\u00eddo"},{n:"Fluxo de certifica\u00e7\u00e3o",r:"Cristiano",pz:"2026-03-15",s:"Conclu\u00eddo"}]},{n:"Testes e Homologa\u00e7\u00e3o",di:"2026-03-16",df:"2026-04-05",s:"Conclu\u00eddo",p:100,t:[{n:"Testes integrados",r:"Cristiano",pz:"2026-03-28",s:"Conclu\u00eddo"}]},{n:"Implementa\u00e7\u00e3o",di:"2026-04-06",df:"2026-04-30",s:"Conclu\u00eddo",p:100,t:[{n:"Go-live",r:"Cristiano",pz:"2026-04-15",s:"Conclu\u00eddo"},{n:"Acompanhamento p\u00f3s",r:"Cristiano",pz:"2026-04-30",s:"Conclu\u00eddo"}]}],
+fb:[{a:"Marcello Kaio",dt:"2026-05-02",n:5,cm:"Automa\u00e7\u00e3o transformou o processo. Excelente entrega."}],
+dc:[{n:"Doc Fluxo Multiplica.pdf",tp:"PDF",dt:"2026-04-30"},{n:"Mapeamento AS-IS TO-BE.xlsx",tp:"Excel",dt:"2026-01-15"}],
+h:[{dt:"2026-01-01",tx:"Projeto criado",tp:"c"},{dt:"2026-01-21",tx:"Ambiente preparado",tp:"u"},{dt:"2026-02-11",tx:"In\u00edcio MVP",tp:"u"},{dt:"2026-04-15",tx:"Go-live realizado",tp:"u"},{dt:"2026-04-30",tx:"Projeto conclu\u00eddo",tp:"k"}]},
+
+{id:8,t:"APP Certifica\u00e7\u00e3o \u2013 Projeto F",d:"Aplicativo para gest\u00e3o do processo de certifica\u00e7\u00e3o t\u00e9cnica \u2013 Projeto F",o:["Digitaliza\u00e7\u00e3o da certifica\u00e7\u00e3o","Rastreabilidade das etapas","Interface amig\u00e1vel"],c:"Solu\u00e7\u00f5es",r:"Cristiano Verissimo Luz",s:"Conclu\u00eddo",p:100,di:"2026-01-20",df:"2026-04-30",pr:"Alta",or:"Interno",
+f:[{n:"Prototipa\u00e7\u00e3o",di:"2026-01-20",df:"2026-02-15",s:"Conclu\u00eddo",p:100,t:[{n:"Wireframes",r:"Cristiano",pz:"2026-02-01",s:"Conclu\u00eddo"},{n:"Valida\u00e7\u00e3o do prot\u00f3tipo",r:"Cristiano",pz:"2026-02-15",s:"Conclu\u00eddo"}]},{n:"Desenvolvimento",di:"2026-02-16",df:"2026-03-31",s:"Conclu\u00eddo",p:100,t:[{n:"Frontend Power Apps",r:"Cristiano",pz:"2026-03-15",s:"Conclu\u00eddo"},{n:"Backend e integra\u00e7\u00e3o",r:"Cristiano",pz:"2026-03-31",s:"Conclu\u00eddo"}]},{n:"Testes e Publica\u00e7\u00e3o",di:"2026-04-01",df:"2026-04-30",s:"Conclu\u00eddo",p:100,t:[{n:"Testes com usu\u00e1rios",r:"Cristiano",pz:"2026-04-15",s:"Conclu\u00eddo"},{n:"Deploy produ\u00e7\u00e3o",r:"Cristiano",pz:"2026-04-30",s:"Conclu\u00eddo"}]}],
+fb:[{a:"Thadeu Martins",dt:"2026-05-03",n:5,cm:"App muito intuitivo. Facilitou o controle das certifica\u00e7\u00f5es."}],
+dc:[{n:"Manual APP.pdf",tp:"PDF",dt:"2026-04-30"}],
+h:[{dt:"2026-01-20",tx:"Projeto criado",tp:"c"},{dt:"2026-02-16",tx:"In\u00edcio desenvolvimento",tp:"u"},{dt:"2026-04-30",tx:"App publicado",tp:"k"}]},
+
+{id:9,t:"APP Invent\u00e1rio Sala 5 Estrelas",d:"Aplicativo para gest\u00e3o do invent\u00e1rio das Salas 5 Estrelas de treinamento",o:["Controle digitalizado","Visibilidade do status de cada sala","Facilita\u00e7\u00e3o de auditorias"],c:"Solu\u00e7\u00f5es",r:"Cristiano Verissimo Luz",s:"Ativo",p:40,di:"2026-03-11",df:"2026-07-31",pr:"M\u00e9dia",or:"Interno",
+f:[{n:"Levantamento",di:"2026-03-11",df:"2026-04-10",s:"Conclu\u00eddo",p:100,t:[{n:"Mapeamento das salas",r:"Cristiano",pz:"2026-03-25",s:"Conclu\u00eddo"},{n:"Defini\u00e7\u00e3o de campos",r:"Cristiano",pz:"2026-04-10",s:"Conclu\u00eddo"}]},{n:"Desenvolvimento",di:"2026-04-11",df:"2026-06-30",s:"Ativo",p:30,t:[{n:"Interface do app",r:"Cristiano",pz:"2026-05-15",s:"Ativo"},{n:"Banco de dados",r:"Cristiano",pz:"2026-06-15",s:"Pendente"}]},{n:"Testes e Implanta\u00e7\u00e3o",di:"2026-07-01",df:"2026-07-31",s:"Pendente",p:0,t:[{n:"Testes de campo",r:"Cristiano",pz:"2026-07-15",s:"Pendente"}]}],
+fb:[],dc:[{n:"Escopo 5 Estrelas.docx",tp:"Word",dt:"2026-04-10"}],
+h:[{dt:"2026-03-11",tx:"Projeto criado",tp:"c"},{dt:"2026-04-10",tx:"Levantamento conclu\u00eddo",tp:"u"},{dt:"2026-04-11",tx:"In\u00edcio desenvolvimento",tp:"u"}]},
+
+{id:10,t:"Hub de Apps",d:"Portal centralizado para acesso a todos os aplicativos da IO",o:["Ponto \u00fanico de acesso","Melhor experi\u00eancia","Descoberta de ferramentas"],c:"Solu\u00e7\u00f5es",r:"Cristiano Verissimo Luz",s:"Planejamento",p:0,di:"2026-04-01",df:"2026-09-30",pr:"M\u00e9dia",or:"Interno",
+f:[{n:"Concep\u00e7\u00e3o",di:"2026-04-01",df:"2026-05-15",s:"Pendente",p:0,t:[{n:"Benchmark",r:"Cristiano",pz:"2026-04-20",s:"Pendente"}]},{n:"Desenvolvimento",di:"2026-05-16",df:"2026-08-31",s:"Pendente",p:0,t:[{n:"Frontend do Hub",r:"Cristiano",pz:"2026-07-15",s:"Pendente"}]},{n:"Lan\u00e7amento",di:"2026-09-01",df:"2026-09-30",s:"Pendente",p:0,t:[{n:"Go-live",r:"Cristiano",pz:"2026-09-30",s:"Pendente"}]}],
+fb:[],dc:[],h:[{dt:"2026-04-01",tx:"Projeto criado",tp:"c"}]},
+
+{id:11,t:"APP Portal de Ideias",d:"Aplicativo para gest\u00e3o e vota\u00e7\u00e3o de ideias inovadoras das equipes de campo",o:["Canal para inova\u00e7\u00e3o","Gamifica\u00e7\u00e3o","Prioriza\u00e7\u00e3o de ideias"],c:"Solu\u00e7\u00f5es",r:"Cristiano Verissimo Luz",s:"Planejamento",p:0,di:"2026-07-01",df:"2026-12-31",pr:"Baixa",or:"Interno",
+f:[{n:"Idea\u00e7\u00e3o e Escopo",di:"2026-07-01",df:"2026-08-15",s:"Pendente",p:0,t:[{n:"Workshop com equipes",r:"Cristiano",pz:"2026-07-20",s:"Pendente"}]},{n:"Desenvolvimento",di:"2026-08-16",df:"2026-11-30",s:"Pendente",p:0,t:[{n:"App de submiss\u00e3o",r:"Cristiano",pz:"2026-10-15",s:"Pendente"}]},{n:"Lan\u00e7amento",di:"2026-12-01",df:"2026-12-31",s:"Pendente",p:0,t:[{n:"Piloto",r:"Cristiano",pz:"2026-12-15",s:"Pendente"}]}],
+fb:[],dc:[],h:[{dt:"2026-07-01",tx:"Projeto criado",tp:"c"}]},
+
+{id:12,t:"APP Gest\u00e3o de Projetos",d:"Aplicativo web para gest\u00e3o do portf\u00f3lio de projetos da IO \u2013 Intelig\u00eancia Operacional",o:["Vis\u00e3o consolidada","Progresso em tempo real","Feedback entre stakeholders","M\u00e9tricas executivas"],c:"Solu\u00e7\u00f5es",r:"Cristiano Verissimo Luz",s:"Planejamento",p:5,di:"2026-10-01",df:"2027-03-31",pr:"Alta",or:"A definir",
+f:[{n:"Concep\u00e7\u00e3o e Prototipa\u00e7\u00e3o",di:"2026-10-01",df:"2026-11-15",s:"Pendente",p:0,t:[{n:"Levantamento de requisitos",r:"Cristiano",pz:"2026-10-20",s:"Pendente"},{n:"Prot\u00f3tipo interativo",r:"Cristiano",pz:"2026-11-15",s:"Pendente"}]},{n:"Desenvolvimento",di:"2026-11-16",df:"2027-02-28",s:"Pendente",p:0,t:[{n:"Frontend e backend",r:"Cristiano",pz:"2027-01-31",s:"Pendente"}]},{n:"Lan\u00e7amento",di:"2027-03-01",df:"2027-03-31",s:"Pendente",p:0,t:[{n:"Go-live",r:"Cristiano",pz:"2027-03-31",s:"Pendente"}]}],
+fb:[],dc:[],h:[{dt:"2026-10-01",tx:"Projeto criado",tp:"c"}]}
+];
+var cP=null,cR=0;
+function gSC(s){return{"Ativo":"ativo","Conclu\u00eddo":"concluido","Planejamento":"planejamento","Pausado":"pausado","Pendente":"pendente"}[s]||"pausado";}
+function gCo(s){return{"Ativo":"#0097A9","Conclu\u00eddo":"#27AE60","Planejamento":"#F5842B","Pausado":"#A7A8AA","Pendente":"#A7A8AA"}[s]||"#A7A8AA";}
+function fD(d){if(!d)return"-";var x=d.split("-");return x[2]+"/"+x[1]+"/"+x[0];}
+function gSt(n){var s="";for(var i=1;i<=5;i++)s+=(i<=n?"\u2605":"\u2606");return s;}
+function sTo(m){var t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(function(){t.classList.remove("show")},3000);}
+
+function nav(pg,el){
+  document.querySelectorAll(".pg").forEach(function(p){p.classList.remove("active");});
+  document.querySelectorAll(".sb nav a").forEach(function(a){a.classList.remove("active");});
+  if(el)el.classList.add("active");
+  var tt={"dash":"Dashboard de Projetos","met":"M\u00e9tricas do Portf\u00f3lio","novo":"Novo Projeto","det":"Detalhes do Projeto"};
+  document.getElementById("pT").textContent=tt[pg]||"Dashboard";
+  var mp={"dash":"pDash","met":"pMet","novo":"pNovo","det":"pDet"};
+  var tg=document.getElementById(mp[pg]);if(tg)tg.classList.add("active");
+  if(pg==="dash")rDB();if(pg==="met")rMet();
+}
+
+function rDB(){rSt();rCd(P);}
+function rSt(){
+  var t=P.length,a=P.filter(function(x){return x.s==="Ativo";}).length,c=P.filter(function(x){return x.s==="Conclu\u00eddo";}).length;
+  var m=Math.round(P.reduce(function(a,x){return a+x.p;},0)/t);
+  document.getElementById("st").innerHTML='<div class="sc"><h3>Total</h3><div class="v">'+t+'</div></div><div class="sc" style="border-left-color:var(--blue)"><h3>Ativos</h3><div class="v">'+a+'</div></div><div class="sc g"><h3>Conclu\u00eddos</h3><div class="v">'+c+'</div></div><div class="sc o"><h3>Progresso M\u00e9dio</h3><div class="v">'+m+'%</div></div>';
+}
+function rCd(L){
+  var c=document.getElementById("cC");
+  if(!L.length){c.innerHTML='<p style="color:#999;text-align:center;grid-column:1/-1">Nenhum projeto encontrado.</p>';return;}
+  c.innerHTML=L.map(function(x){var sc=gSC(x.s),co=gCo(x.s);
+    return '<div class="cd" onclick="oP('+x.id+')"><div class="ch"><h3>'+x.t+'</h3><span class="bd '+sc+'">'+x.s+'</span></div><div class="ds">'+x.d+'</div><div class="pb"><div class="fi" style="width:'+x.p+'%;background:'+co+'"></div></div><div class="mt"><span>'+x.r+'</span><span>'+x.p+'%</span></div></div>';
+  }).join("");
+}
+function fP(){
+  var st=document.getElementById("fS").value,ca=document.getElementById("fC").value,tx=document.getElementById("sI").value.toLowerCase();
+  var r=P;if(st)r=r.filter(function(x){return x.s===st;});if(ca)r=r.filter(function(x){return x.c===ca;});
+  if(tx)r=r.filter(function(x){return x.t.toLowerCase().indexOf(tx)>=0||x.d.toLowerCase().indexOf(tx)>=0||x.r.toLowerCase().indexOf(tx)>=0;});
+  rCd(r);
+}
+
+function oP(id){
+  cP=P.filter(function(x){return x.id===id;})[0];if(!cP)return;
+  nav("det",null);rDH(cP);sT("ov",document.querySelector("#tB button"));
+}
+function rDH(x){
+  var co=gCo(x.s),r=40,ci=2*Math.PI*r,of=ci-(x.p/100)*ci;
+  document.getElementById("dH").innerHTML='<div class="pc"><svg width="100" height="100"><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="#eee" stroke-width="8"/><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="'+co+'" stroke-width="8" stroke-dasharray="'+ci+'" stroke-dashoffset="'+of+'" stroke-linecap="round" transform="rotate(-90 50 50)"/></svg><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:1.2em;font-weight:700">'+x.p+'%</div></div><div class="inf"><h2>'+x.t+'</h2><p style="color:#666;font-size:.86em">'+x.d+'</p><div class="mr"><span><b>Status:</b> <span class="bd '+gSC(x.s)+'">'+x.s+'</span></span><span><b>Resp:</b> '+x.r+'</span><span><b>Per\u00edodo:</b> '+fD(x.di)+' a '+fD(x.df)+'</span><span><b>Prioridade:</b> '+x.pr+'</span><span><b>Or\u00e7amento:</b> '+x.or+'</span></div></div>';
+}
+function sT(nm,bt){
+  document.querySelectorAll("#tB button").forEach(function(b){b.classList.remove("active");});if(bt)bt.classList.add("active");
+  var fn={"ov":rOv,"ph":rPh,"fb":rFb,"dc":rDc,"hi":rHi,"tl":rTl};if(fn[nm])fn[nm](cP);
+}
+function rOv(x){
+  document.getElementById("tC").innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px"><div><h3 style="margin-bottom:10px">Objetivos</h3><ul class="ol">'+x.o.map(function(o){return "<li>"+o+"</li>";}).join("")+'</ul></div><div><h3 style="margin-bottom:10px">Informa\u00e7\u00f5es</h3><div class="ig"><div class="ii"><div class="lb">Categoria</div><div class="vl">'+x.c+'</div></div><div class="ii"><div class="lb">Respons\u00e1vel</div><div class="vl">'+x.r+'</div></div><div class="ii"><div class="lb">Prioridade</div><div class="vl">'+x.pr+'</div></div><div class="ii"><div class="lb">Or\u00e7amento</div><div class="vl">'+x.or+'</div></div><div class="ii"><div class="lb">In\u00edcio</div><div class="vl">'+fD(x.di)+'</div></div><div class="ii"><div class="lb">Fim</div><div class="vl">'+fD(x.df)+'</div></div><div class="ii"><div class="lb">Fases</div><div class="vl">'+x.f.length+'</div></div><div class="ii"><div class="lb">Feedbacks</div><div class="vl">'+x.fb.length+'</div></div></div></div></div>';
+}
+function rPh(x){
+  document.getElementById("tC").innerHTML=x.f.map(function(f,i){var co=gCo(f.s);
+    return '<div class="phc"><div class="phh" onclick="tPh('+i+')"><h4 style="flex:1;font-size:.93em">'+f.n+'</h4><div><span class="bd" style="background:'+co+'">'+f.s+'</span> <span style="margin-left:6px;font-size:.83em">'+f.p+'%</span></div></div><div class="phb" id="ph'+i+'"><p style="font-size:.83em;color:#666;margin-bottom:8px">'+fD(f.di)+' a '+fD(f.df)+'</p><table><thead><tr><th>Tarefa</th><th>Resp.</th><th>Prazo</th><th>Status</th></tr></thead><tbody>'+f.t.map(function(t){return '<tr><td>'+t.n+'</td><td>'+t.r+'</td><td>'+fD(t.pz)+'</td><td><span class="bd" style="background:'+gCo(t.s)+';font-size:.68em">'+t.s+'</span></td></tr>';}).join("")+'</tbody></table></div></div>';
+  }).join("");
+}
+function tPh(i){var e=document.getElementById("ph"+i);if(e)e.classList.toggle("open");}
+
+function rFb(x){
+  var ls=x.fb.map(function(f){return '<div style="background:var(--light);border-radius:10px;padding:14px;margin-bottom:10px"><div style="display:flex;justify-content:space-between"><b>'+f.a+'</b><span style="color:#999;font-size:.8em">'+fD(f.dt)+'</span></div><div style="color:#F5842B;margin:4px 0">'+gSt(f.n)+'</div><p style="color:#666;font-size:.86em">'+f.cm+'</p></div>';}).join("");
+  if(!x.fb.length)ls='<p style="color:#999">Nenhum feedback registrado.</p>';
+  document.getElementById("tC").innerHTML=ls+'<div style="background:var(--light);border-radius:12px;padding:18px;margin-top:18px"><h4 style="margin-bottom:10px">Novo Feedback</h4><div id="sR" style="font-size:1.5em;color:#ddd;cursor:pointer">'+[1,2,3,4,5].map(function(i){return '<span onmouseover="hS('+i+')" onmouseout="rS()" onclick="aR('+i+')">\u2606</span>';}).join("")+'</div><textarea id="fT" placeholder="Seu coment\u00e1rio..." style="width:100%;height:70px;border:1px solid #ddd;border-radius:8px;padding:10px;font-family:inherit;margin:10px 0"></textarea><button class="btn btn-p" onclick="sFb('+x.id+')">Enviar</button></div>';
+}
+function aR(n){cR=n;var sp=document.querySelectorAll("#sR span");sp.forEach(function(s,i){s.textContent=i<n?"\u2605":"\u2606";s.style.color=i<n?"#F5842B":"#ddd";});}
+function hS(n){var sp=document.querySelectorAll("#sR span");sp.forEach(function(s,i){s.textContent=i<n?"\u2605":"\u2606";s.style.color=i<n?"#F5842B":"#ddd";});}
+function rS(){var sp=document.querySelectorAll("#sR span");sp.forEach(function(s,i){s.textContent=i<cR?"\u2605":"\u2606";s.style.color=i<cR?"#F5842B":"#ddd";});}
+function sFb(id){
+  var tx=document.getElementById("fT").value;if(!cR||!tx){sTo("Preencha nota e coment\u00e1rio");return;}
+  var x=P.filter(function(p){return p.id===id;})[0];
+  x.fb.push({a:"Marcello Kaio",dt:new Date().toISOString().split("T")[0],n:cR,cm:tx});cR=0;sTo("Feedback enviado!");rFb(x);
+}
+
+function rDc(x){
+  var ls=x.dc.map(function(d){return '<div class="dc" onclick="sTo(\'Download: '+d.n+'\')"><div style="font-size:1.8em;margin-bottom:6px">'+d.tp+'</div><div style="font-weight:600;font-size:.85em">'+d.n+'</div><div style="color:#999;font-size:.73em;margin-top:3px">'+fD(d.dt)+'</div></div>';}).join("");
+  if(!x.dc.length)ls='<p style="color:#999">Nenhum documento.</p>';
+  document.getElementById("tC").innerHTML='<div class="dg">'+ls+'</div><button class="btn btn-s" onclick="sTo(\'Upload simulado!\')" style="margin-top:14px">+ Upload</button>';
+}
+
+function rHi(x){
+  var cls={"c":"#27AE60","u":"#0097A9","k":"#F5842B"};
+  document.getElementById("tC").innerHTML=x.h.map(function(h){var co=cls[h.tp]||"#A7A8AA";
+    return '<div class="tl"><div class="dot" style="background:'+co+'20;color:'+co+'">'+(h.tp==="c"?"+":h.tp==="k"?"\u2713":"\u21BB")+'</div><div><b>'+fD(h.dt)+'</b><p style="margin:3px 0 0;color:#666;font-size:.86em">'+h.tx+'</p></div></div>';
+  }).join("");
+}
+
+function rTl(x){
+  if(!x.f.length){document.getElementById("tC").innerHTML="<p>Sem fases.</p>";return;}
+  var ds=[];x.f.forEach(function(f){ds.push(new Date(f.di).getTime());ds.push(new Date(f.df).getTime());});
+  var mn=Math.min.apply(null,ds),mx=Math.max.apply(null,ds),rg=mx-mn||1;
+  var h='<div style="overflow-x:auto"><div style="min-width:500px">';
+  h+='<div style="display:flex;justify-content:space-between;font-size:.73em;color:#999;margin-bottom:8px"><span>'+fD(new Date(mn).toISOString().split("T")[0])+'</span><span>'+fD(new Date(mx).toISOString().split("T")[0])+'</span></div>';
+  x.f.forEach(function(f){var s=new Date(f.di).getTime(),e=new Date(f.df).getTime(),l=((s-mn)/rg)*100,w=Math.max(((e-s)/rg)*100,3),co=gCo(f.s);
+    h+='<div style="margin-bottom:10px"><div style="font-size:.8em;font-weight:600;margin-bottom:3px">'+f.n+'</div><div style="position:relative;height:22px;background:#f0f0f0;border-radius:11px"><div style="position:absolute;left:'+l+'%;width:'+w+'%;height:100%;background:'+co+';border-radius:11px;display:flex;align-items:center;padding:0 6px;font-size:.7em;color:#fff;font-weight:600">'+f.p+'%</div></div></div>';
+  });h+='</div></div>';document.getElementById("tC").innerHTML=h;
+}
+
+function rMet(){
+  var t=P.length,a=P.filter(function(x){return x.s==="Ativo";}).length,c=P.filter(function(x){return x.s==="Conclu\u00eddo";}).length,pl=P.filter(function(x){return x.s==="Planejamento";}).length;
+  var m=Math.round(P.reduce(function(a,x){return a+x.p;},0)/t);
+  var tf=P.reduce(function(a,x){return a+x.fb.length;},0);
+  var mf=tf?(P.reduce(function(a,x){return a+x.fb.reduce(function(b,f){return b+f.n;},0);},0)/tf).toFixed(1):"N/A";
+  document.getElementById("mK").innerHTML='<div class="sc"><h3>Total</h3><div class="v">'+t+'</div></div><div class="sc" style="border-left-color:var(--blue)"><h3>Ativos</h3><div class="v">'+a+'</div></div><div class="sc g"><h3>Conclu\u00eddos</h3><div class="v">'+c+'</div></div><div class="sc o"><h3>Progresso</h3><div class="v">'+m+'%</div></div><div class="sc r"><h3>Nota M\u00e9dia</h3><div class="v">'+mf+'</div></div>';
+  setTimeout(function(){
+    dBC("cS",["Ativo","Conclu\u00eddo","Planej."],[a,c,pl],["#0097A9","#27AE60","#F5842B"]);
+    var cs={};P.forEach(function(x){cs[x.c]=(cs[x.c]||0)+1;});var ck=Object.keys(cs),cv=ck.map(function(k){return cs[k];});
+    dPC("cCa",cv,ck,["#DA291C","#0097A9","#F5842B","#27AE60","#9B59B6"]);
+    dHC("cP",P.map(function(x){return x.t.substring(0,22);}),P.map(function(x){return x.p;}),P.map(function(x){return gCo(x.s);}));
+  },120);
+}
+
+function dBC(id,lb,dt,cl){
+  var cv=document.getElementById(id);if(!cv)return;var ctx=cv.getContext("2d"),w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+  var mx=Math.max.apply(null,dt)||1,bw=w/(dt.length*2+1);
+  dt.forEach(function(v,i){var bh=(v/mx)*(h-50);var x=bw*(2*i+1);ctx.fillStyle=cl[i%cl.length];ctx.fillRect(x,h-35-bh,bw,bh);ctx.fillStyle="#333";ctx.font="bold 12px sans-serif";ctx.textAlign="center";ctx.fillText(v,x+bw/2,h-39-bh);ctx.fillStyle="#666";ctx.font="10px sans-serif";ctx.fillText(lb[i],x+bw/2,h-15);});
+}
+function dPC(id,dt,lb,cl){
+  var cv=document.getElementById(id);if(!cv)return;var ctx=cv.getContext("2d"),w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+  var tt=dt.reduce(function(a,b){return a+b;},0);if(!tt)return;var cx=w/2-55,cy=h/2,r=Math.min(cx,cy)-10,an=-Math.PI/2;
+  dt.forEach(function(v,i){var sl=(v/tt)*2*Math.PI;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,an,an+sl);ctx.closePath();ctx.fillStyle=cl[i%cl.length];ctx.fill();an+=sl;});
+  var ly=25;lb.forEach(function(l,i){ctx.fillStyle=cl[i%cl.length];ctx.fillRect(w-105,ly-7,10,10);ctx.fillStyle="#333";ctx.font="10px sans-serif";ctx.textAlign="left";ctx.fillText(l+" ("+dt[i]+")",w-90,ly);ly+=18;});
+}
+function dHC(id,lb,dt,cl){
+  var cv=document.getElementById(id);if(!cv)return;var ctx=cv.getContext("2d"),w=cv.width,h=cv.height;ctx.clearRect(0,0,w,h);
+  var bh=Math.min(20,(h-10)/dt.length-3),lw=120,mw=w-lw-45;
+  dt.forEach(function(v,i){var y=5+i*(bh+3);ctx.fillStyle="#666";ctx.font="9px sans-serif";ctx.textAlign="right";ctx.fillText(lb[i],lw-4,y+bh/2+3);ctx.fillStyle="#f0f0f0";ctx.fillRect(lw,y,mw,bh);ctx.fillStyle=cl[i%cl.length];ctx.fillRect(lw,y,(v/100)*mw,bh);ctx.fillStyle="#333";ctx.font="9px sans-serif";ctx.textAlign="left";ctx.fillText(v+"%",lw+(v/100)*mw+3,y+bh/2+3);});
+}
+
+function crP(){
+  var t=document.getElementById("nT").value,d=document.getElementById("nD").value,r=document.getElementById("nR").value;
+  if(!t){sTo("Informe o t\u00edtulo!");return;}
+  P.push({id:P.length+1,t:t,d:d||"Sem descri\u00e7\u00e3o",o:["A definir"],c:document.getElementById("nC").value,r:r||"A definir",s:"Planejamento",p:0,di:document.getElementById("nI").value||new Date().toISOString().split("T")[0],df:document.getElementById("nF").value||"",pr:document.getElementById("nP").value,or:document.getElementById("nO").value||"A definir",f:[],fb:[],dc:[],h:[{dt:new Date().toISOString().split("T")[0],tx:"Projeto criado",tp:"c"}]});
+  sTo("Projeto '"+t+"' criado!");document.getElementById("nT").value="";document.getElementById("nD").value="";document.getElementById("nR").value="";document.getElementById("nO").value="";
+  nav("dash",document.querySelector(".sb nav a"));
+}
+
+document.addEventListener("DOMContentLoaded",function(){rDB();});
+</script></body></html>
