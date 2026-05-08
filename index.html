@@ -118,6 +118,14 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 <select id="filterStatus" onchange="filterProjects()"><option value="">Status</option><option value="Ativo">Ativo</option><option value="Concluído">Concluído</option><option value="Planejamento">Planejamento</option><option value="Pausado">Pausado</option></select>
 <select id="filterCategoria" onchange="filterProjects()"><option value="">Categoria</option><option value="Data Analytics">Data Analytics</option><option value="Soluções">Soluções</option><option value="Automação">Automação</option><option value="Capacitação">Capacitação</option></select>
 </div>
+<div class="toolbar" style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;align-items:center;padding:10px 16px;background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+<button class="btn btn-sm" style="background:#217346;color:#fff" onclick="downloadTemplate()">&#11015; Template Excel</button>
+<input type="file" id="importFile" accept=".xlsx,.xls" style="display:none" onchange="processImport(event)">
+<button class="btn btn-sm" style="background:#217346;color:#fff" onclick="document.getElementById('importFile').click()">&#11014; Importar Excel</button>
+<div style="width:1px;height:24px;background:#ddd;margin:0 4px"></div>
+<button class="btn btn-sm" style="background:#217346;color:#fff" onclick="exportAllExcel()">&#128190; Exportar Tudo</button>
+<button class="btn btn-sm btn-back" onclick="exportFilteredExcel()">&#128190; Exportar Filtrados</button>
+</div>
 <div class="cards" id="cardsContainer"><p style="color:#999">Carregando projetos...</p></div>
 </div>
 <div id="pageDetalhes" class="page">
@@ -146,7 +154,7 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 <div style="background:#fff;border-radius:12px;padding:28px;box-shadow:0 2px 8px rgba(0,0,0,.05);max-width:700px">
 <h2 style="margin-bottom:20px;color:var(--dark)">Criar Novo Projeto</h2>
 <div class="edit-row"><div class="form-group"><label>Título *</label><input type="text" id="fTitulo"></div><div class="form-group"><label>Responsável *</label><input type="text" id="fResp"></div></div>
-<div class="form-group"><label>Descrição *</label><textarea id="fDesc"></textarea></div>
+ção *</label><textarea id="fDesc"></textarea></div>
 <div class="edit-row"><div class="form-group"><label>Categoria</label><select id="fCat"><option>Data Analytics</option><option>Soluções</option><option>Automação</option><option>Capacitação</option></select></div><div class="form-group"><label>Prioridade</label><select id="fPri"><option>Alta</option><option selected>Média</option><option>Baixa</option></select></div></div>
 <div class="edit-row"><div class="form-group"><label>Início</label><input type="date" id="fInicio"></div><div class="form-group"><label>Fim</label><input type="date" id="fFim"></div></div>
 <div class="form-group"><label>Orçamento</label><input type="text" id="fOrc" placeholder="Ex: R$ 5.000 ou Interno"></div>
@@ -158,15 +166,17 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 <h3>Editar Projeto</h3>
 <div class="form-group"><label>Título</label><input type="text" id="eTitulo"></div>
 <div class="form-group"><label>Descrição</label><textarea id="eDesc"></textarea></div>
+<div class="edit-row"><div class="form-group"><label>Responsável</label><input type="text" id="eResp"></div><div class="form-group"><label>Orçamento</label><input type="text" id="eOrc"></div></div>
 <div class="edit-row"><div class="form-group"><label>Status</label><select id="eStatus"><option>Ativo</option><option>Concluído</option><option>Planejamento</option><option>Pausado</option></select></div><div class="form-group"><label>Progresso (%)</label><input type="number" id="eProgresso" min="0" max="100"></div></div>
-<div class="edit-row"><div class="form-group"><label>Prioridade</label><select id="ePri"><option>Alta</option><option>Média</option><option>Baixa</option></select></div><div class="form-group"><label>Orçamento</label><input type="text" id="eOrc"></div></div>
+<div class="edit-row"><div class="form-group"><label>Prioridade</label><select id="ePri"><option>Alta</option><option>Média</option><option>Baixa</option></select></div><div class="form-group"><label>Categoria</label><select id="eCat"><option>Data Analytics</option><option>Soluções</option><option>Automação</option><option>Capacitação</option></select></div></div>
+<div class="edit-row"><div class="form-group"><label>Início</label><input type="date" id="eInicio"></div><div class="form-group"><label>Fim</label><input type="date" id="eFim"></div></div>
 <div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-primary" onclick="saveProject()">Salvar</button><button class="btn btn-back" onclick="closeModal('editModal')">Cancelar</button><button class="btn btn-danger" style="margin-left:auto" onclick="deleteProject()">Excluir</button></div>
 </div></div>
 
 <div id="ganhoModal" class="modal-overlay"><div class="modal">
 <h3 id="ganhoModalTitle">Novo Ganho</h3>
 <input type="hidden" id="gId" value="">
-<div class="form-group"><label>Descrição *</label><input type="text" id="gDesc"></div>
+ção *</label><input type="text" id="gDesc"></div>
 <div class="edit-row"><div class="form-group"><label>Tipo</label><select id="gTipo"><option>Ganho Real</option><option>Custo Evitado</option><option>Produtividade</option><option>Receita Incremental</option><option>Compliance</option><option>Outro</option></select></div><div class="form-group"><label>Periodicidade</label><select id="gPeriod"><option>Unico</option><option>Mensal</option><option>Anual</option></select></div></div>
 <div class="edit-row"><div class="form-group"><label>Valor Estimado (R$)</label><input type="number" id="gEstimado" step="0.01" min="0"></div><div class="form-group"><label>Valor Realizado (R$)</label><input type="number" id="gRealizado" step="0.01" min="0"></div></div>
 <div class="edit-row"><div class="form-group"><label>Data Ref.</label><input type="date" id="gData"></div><div class="form-group"><label>Status</label><select id="gStatus"><option>Estimado</option><option>Em Validação</option><option>Validado</option><option>Realizado</option></select></div></div>
@@ -174,6 +184,14 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 <div class="form-group"><label>Evidência</label><input type="text" id="gEvid"></div>
 <div class="form-group"><label>Observações</label><textarea id="gObs"></textarea></div>
 <div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-primary" onclick="saveGanho()">Salvar</button><button class="btn btn-back" onclick="closeModal('ganhoModal')">Cancelar</button></div>
+</div></div>
+<div id="importModal" class="modal-overlay"><div class="modal" style="max-width:700px">
+<h3>Importar Projetos do Excel</h3>
+<div id="importPreview"></div>
+<div style="display:flex;gap:10px;margin-top:16px">
+<button class="btn btn-primary" onclick="confirmImport()">Confirmar</button>
+<button class="btn btn-back" onclick="closeModal('importModal')">Cancelar</button>
+</div>
 </div></div>
 <div id="toast" class="toast"></div>
 
@@ -253,10 +271,14 @@ function openEditModal(){
   document.getElementById('eStatus').value=p.status;document.getElementById('eProgresso').value=p.progresso;
   document.getElementById('ePri').value=p.prioridade;document.getElementById('eOrc').value=p.orcamento||'';
   document.getElementById('editModal').classList.add('show');
+  document.getElementById('eResp').value=p.responsavel;
+  document.getElementById('eCat').value=p.categoria||'Data Analytics';
+  document.getElementById('eInicio').value=p.data_inicio?p.data_inicio.split('T')'';
+  document.getElementById('eFim').value=p.data_fim?p.data_fim.split('T')'';
 }
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 function saveProject(){
-  var d={titulo:document.getElementById('eTitulo').value,descricao:document.getElementById('eDesc').value,status:document.getElementById('eStatus').value,progresso:parseInt(document.getElementById('eProgresso').value)||0,prioridade:document.getElementById('ePri').value,orcamento:document.getElementById('eOrc').value,updated_at:new Date().toISOString()};
+  var d={titulo:document.getElementById('eTitulo').value,descricao:document.getElementById('eDesc').value,responsavel:document.getElementById('eResp').value,status:document.getElementById('eStatus').value,progresso:parseInt(document.getElementById('eProgresso').value)||0,prioridade:document.getElementById('ePri').value,categoria:document.getElementById('eCat').value,orcamento:document.getElementById('eOrc').value,data_inicio:document.getElementById('eInicio').value||null,data_fim:document.getElementById('eFim').value||null,updated_at:new Date().toISOString()};
   apiPatch('projetos',currentProject.id,d).then(function(r){if(r&&r.length){currentProject=r[0];var idx=projetos.findIndex(function(p){return p.id===currentProject.id;});if(idx>=0)projetos[idx]=currentProject;renderDetailHeader(currentProject);closeModal('editModal');showToast('Projeto atualizado!');apiPost('historico',{projeto_id:currentProject.id,texto:'Projeto editado: '+d.status+' ('+d.progresso+'%)',tipo:'atualizacao'});}}).catch(function(){showToast('Erro ao salvar');});
 }
 function deleteProject(){
@@ -513,7 +535,126 @@ function createProject(){
   var np={titulo:t,descricao:d,responsavel:r,categoria:document.getElementById('fCat').value,prioridade:document.getElementById('fPri').value,data_inicio:document.getElementById('fInicio').value||null,data_fim:document.getElementById('fFim').value||null,orcamento:document.getElementById('fOrc').value||'Interno',status:'Planejamento',progresso:0};
   apiPost('projetos',np).then(function(r){if(r&&r.length){showToast('Projeto "'+t+'" criado!');apiPost('historico',{projeto_id:r[0].id,texto:'Projeto criado',tipo:'criacao'});document.getElementById('fTitulo').value='';document.getElementById('fDesc').value='';document.getElementById('fResp').value='';navigateTo('dashboard',document.querySelector('.sidebar nav a'));}}).catch(function(){showToast('Erro ao criar projeto');});
 }
+// ============ SPRINT 2: IMPORT/EXPORT EXCEL ============
+var importData=null;
 
+function downloadTemplate(){
+  var wb=XLSX.utils.book_new();
+  var ws1=XLSX.utils.aoa_to_sheet([['titulo','descricao','responsavel','categoria','prioridade','status','data_inicio','data_fim','orcamento'],['Projeto Exemplo','Descricao do projeto','Nome Responsavel','Data Analytics','Media','Planejamento','2026-06-01','2026-12-31','Interno']]);
+  XLSX.utils.book_append_sheet(wb,ws1,'Projetos');
+  var ws2=XLSX.utils.aoa_to_sheet([['projeto_titulo','titulo','data_inicio','data_fim','status'],['Projeto Exemplo','Fase 1','2026-06-01','2026-08-31','Pendente']]);
+  XLSX.utils.book_append_sheet(wb,ws2,'Fases');
+  var ws3=XLSX.utils.aoa_to_sheet([['fase_titulo','titulo','responsavel','prazo','status'],['Fase 1','Tarefa exemplo','Responsavel','2026-07-15','Pendente']]);
+  XLSX.utils.book_append_sheet(wb,ws3,'Tarefas');
+  XLSX.writeFile(wb,'Template_Projetos_IO.xlsx');
+  showToast('Template baixado!');
+}
+
+function exportAllExcel(){
+  if(!projetos.length){showToast('Nenhum projeto para exportar');return;}
+  var data=projetos.map(function(p){return{Titulo:p.titulo,Descricao:p.descricao,Responsavel:p.responsavel,Categoria:p.categoria,Prioridade:p.prioridade,Status:p.status,Progresso:p.progresso+'%',Inicio:formatDate(p.data_inicio),Fim:formatDate(p.data_fim),Orcamento:p.orcamento||''};});
+  var wb=XLSX.utils.book_new();var ws=XLSX.utils.json_to_sheet(data);
+  ws['!cols']=[{wch:30},{wch:40},{wch:20},{wch:16},{wch:10},{wch:14},{wch:10},{wch:12},{wch:12},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws,'Projetos');
+  XLSX.writeFile(wb,'Projetos_IO_'+new Date().toISOString().split('T')[0]+'.xlsx');
+  showToast('Excel exportado!');
+}
+
+function exportFilteredExcel(){
+  var st=document.getElementById('filterStatus').value;var cat=document.getElementById('filterCategoria').value;var txt=document.getElementById('searchInput').value.toLowerCase();
+  var f=projetos;
+  if(st)f=f.filter(function(p){return p.status===st;});
+  if(cat)f=f.filter(function(p){return p.categoria===cat;});
+  if(txt)f=f.filter(function(p){return(p.titulo||'').toLowerCase().indexOf(txt)>=0||(p.descricao||'').toLowerCase().indexOf(txt)>=0;});
+  if(!f.length){showToast('Nenhum projeto filtrado');return;}
+  var data=f.map(function(p){return{Titulo:p.titulo,Responsavel:p.responsavel,Status:p.status,Progresso:p.progresso+'%',Categoria:p.categoria};});
+  var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(data),'Filtrados');
+  XLSX.writeFile(wb,'Projetos_Filtrados.xlsx');showToast('Exportado!');
+}
+
+function exportProjectExcel(){
+  if(!currentProject){showToast('Nenhum projeto selecionado');return;}
+  var p=currentProject;
+  var wb=XLSX.utils.book_new();
+  var ws1=XLSX.utils.json_to_sheet([{Titulo:p.titulo,Descricao:p.descricao,Responsavel:p.responsavel,Status:p.status,Progresso:p.progresso+'%',Categoria:p.categoria,Prioridade:p.prioridade,Inicio:formatDate(p.data_inicio),Fim:formatDate(p.data_fim),Orcamento:p.orcamento||''}]);
+  XLSX.utils.book_append_sheet(wb,ws1,'Projeto');
+  Promise.all([apiGet('fases','?projeto_id=eq.'+p.id+'&order=id'),apiGet('tarefas','?fase_id=in.('+')&order=id'),apiGet('ganhos','?projeto_id=eq.'+p.id+'&order=id')]).catch(function(){return[[],[],[]];}).then(function(){
+    apiGet('fases','?projeto_id=eq.'+p.id+'&order=id').then(function(fases){
+      if(fases.length){var fd=fases.map(function(f){return{Fase:f.titulo,Status:f.status,Progresso:f.progresso+'%',Inicio:formatDate(f.data_inicio),Fim:formatDate(f.data_fim)};});XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(fd),'Fases');}
+      var tPromises=fases.map(function(f){return apiGet('tarefas','?fase_id=eq.'+f.id+'&order=id');});
+      return Promise.all(tPromises).then(function(allT){
+        var allTasks=[];allT.forEach(function(tasks,i){tasks.forEach(function(t){allTasks.push({Fase:fases[i].titulo,Tarefa:t.titulo,Responsavel:t.responsavel||'',Prazo:formatDate(t.prazo),Status:t.status});});});
+        if(allTasks.length)XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(allTasks),'Tarefas');
+      });
+    }).then(function(){
+      return apiGet('ganhos','?projeto_id=eq.'+p.id+'&order=id');
+    }).then(function(ganhos){
+      if(ganhos&&ganhos.length){var gd=ganhos.map(function(g){return{Descricao:g.descricao,Tipo:g.tipo,Estimado:g.valor_estimado,Realizado:g.valor_realizado,Periodicidade:g.periodicidade,Status:g.status};});XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(gd),'Ganhos');}
+      XLSX.writeFile(wb,'Projeto_'+p.titulo.replace(/[^a-zA-Z0-9]/g,'_')+'.xlsx');showToast('Projeto exportado!');
+    });
+  });
+}
+
+function processImport(e){
+  var file=e.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var data=new Uint8Array(ev.target.result);
+    var wb=XLSX.read(data,{type:'array'});
+    importData={projetos:[],fases:[],tarefas:[]};
+    if(wb.SheetNames.indexOf('Projetos')>=0){importData.projetos=XLSX.utils.sheet_to_json(wb.Sheets['Projetos']);}
+    if(wb.SheetNames.indexOf('Fases')>=0){importData.fases=XLSX.utils.sheet_to_json(wb.Sheets['Fases']);}
+    if(wb.SheetNames.indexOf('Tarefas')>=0){importData.tarefas=XLSX.utils.sheet_to_json(wb.Sheets['Tarefas']);}
+    var html='<h4 style="margin-bottom:8px">'+importData.projetos.length+' projeto(s) encontrado(s)</h4>';
+    if(importData.projetos.length){
+      html+='<div class="preview-box"><table><thead><tr><th>Titulo</th><th>Responsavel</th><th>Categoria</th><th>Status</th></tr></thead><tbody>';
+      importData.projetos.forEach(function(p){html+='<tr><td>'+(p.titulo||'')+'</td><td>'+(p.responsavel||'')+'</td><td>'+(p.categoria||'')+'</td><td>'+(p.status||'Planejamento')+'</td></tr>';});
+      html+='</tbody></table></div>';
+    }
+    if(importData.fases.length)html+='<p style="font-size:.85em;color:#666;margin-top:8px">'+importData.fases.length+' fase(s) para importar</p>';
+    if(importData.tarefas.length)html+='<p style="font-size:.85em;color:#666">'+importData.tarefas.length+' tarefa(s) para importar</p>';
+    if(!importData.projetos.length)html+='<p style="color:#E74C3C">Nenhum projeto encontrado na aba "Projetos". Verifique o template.</p>';
+    document.getElementById('importPreview').innerHTML=html;
+    document.getElementById('importModal').classList.add('show');
+    e.target.value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function confirmImport(){
+  if(!importData||!importData.projetos.length){showToast('Nenhum dado para importar');return;}
+  showToast('Importando '+importData.projetos.length+' projeto(s)...');
+  var projetoMap={};
+  var chain=Promise.resolve();
+  importData.projetos.forEach(function(p){
+    chain=chain.then(function(){
+      return apiPost('projetos',{titulo:p.titulo||'Sem titulo',descricao:p.descricao||'',responsavel:p.responsavel||'',categoria:p.categoria||'Data Analytics',prioridade:p.prioridade||'Media',status:p.status||'Planejamento',progresso:0,data_inicio:p.data_inicio||null,data_fim:p.data_fim||null,orcamento:p.orcamento||'Interno'}).then(function(r){
+        if(r&&r.length){projetoMap[p.titulo]=r[0].id;apiPost('historico',{projeto_id:r[0].id,texto:'Projeto importado via Excel',tipo:'criacao'});}
+      });
+    });
+  });
+  chain.then(function(){
+    var faseMap={};var fChain=Promise.resolve();
+    importData.fases.forEach(function(f){
+      fChain=fChain.then(function(){
+        var pid=projetoMap[f.projeto_titulo];if(!pid)return;
+        return apiPost('fases',{projeto_id:pid,titulo:f.titulo||'Sem titulo',data_inicio:f.data_inicio||null,data_fim:f.data_fim||null,status:f.status||'Pendente',progresso:0}).then(function(r){if(r&&r.length)faseMap[f.titulo]=r[0].id;});
+      });
+    });
+    return fChain.then(function(){
+      var tChain=Promise.resolve();
+      importData.tarefas.forEach(function(t){
+        tChain=tChain.then(function(){
+          var fid=faseMap[t.fase_titulo];if(!fid)return;
+          return apiPost('tarefas',{fase_id:fid,titulo:t.titulo||'Sem titulo',responsavel:t.responsavel||null,prazo:t.prazo||null,status:t.status||'Pendente'});
+        });
+      });
+      return tChain;
+    });
+  }).then(function(){
+    closeModal('importModal');showToast('Importacao concluida!');importData=null;loadDashboard();
+  }).catch(function(err){showToast('Erro na importacao: '+err.message);});
+}
 // ============================================================
 // INIT
 // ============================================================
