@@ -318,6 +318,7 @@ body.role-admin .show-admin-only{display:flex!important}
 <button class="btn btn-primary" onclick="confirmImport()">Confirmar</button>
 <button class="btn btn-back" onclick="closeModal('importModal')">Cancelar</button>
 </div>
+</div></div>
 
 <div id="newUserModal" class="modal-overlay"><div class="modal">
 <h3>Novo Usuário</h3>
@@ -329,7 +330,6 @@ body.role-admin .show-admin-only{display:flex!important}
 <div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-primary" onclick="createUser()">Criar</button><button class="btn btn-back" onclick="closeModal('newUserModal')">Cancelar</button></div>
 </div></div>
 
-</div></div>
 <div id="toast" class="toast"></div>
 
 <script>
@@ -832,7 +832,7 @@ document.addEventListener('keydown',function(e){
 });
 (function(){document.addEventListener('click',function(e){var sb=document.querySelector('.sidebar');var hBtn=document.getElementById('hamburgerBtn');if(sb&&sb.classList.contains('open')&&!sb.contains(e.target)&&e.target!==hBtn&&(!hBtn||!hBtn.contains(e.target)))sb.classList.remove('open');});})();
 
-// ============ SPRINT 5: AUTH (v3 - FIXED) ============
+// ============ SPRINT 5: AUTH (v4 - ALL FIXES) ============
 var sbClient=null,currentUser=null,currentRole='visualizador';
 var ADMIN_EMAIL='marcello.bueno@claro.com.br';
 
@@ -841,29 +841,24 @@ function initAuth(){
   sbClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
   sbClient.auth.getSession().then(function(res){
     var session=(res&&res.data)?res.data.session:null;
-    if(session){console.log('[AUTH] Session found:',session.user.email);handleSession(session);}
+    if(session){console.log('[AUTH] Session:',session.user.email);handleSession(session);}
     else{console.log('[AUTH] No session');document.getElementById('loginOverlay').classList.remove('hidden');}
-  }).catch(function(err){console.error('[AUTH] getSession error:',err);document.getElementById('loginOverlay').classList.remove('hidden');});
-  sbClient.auth.onAuthStateChange(function(event){
-    console.log('[AUTH] State:',event);
-    if(event==='SIGNED_OUT'){document.getElementById('loginOverlay').classList.remove('hidden');document.body.className='';}
-  });
+  }).catch(function(err){console.error('[AUTH] Err:',err);document.getElementById('loginOverlay').classList.remove('hidden');});
+  sbClient.auth.onAuthStateChange(function(event){if(event==='SIGNED_OUT'){document.getElementById('loginOverlay').classList.remove('hidden');document.body.className='';}});
 }
 
 function handleSession(session){
-  if(!session||!session.user)return;
-  currentUser=session.user;
-  var token=session.access_token;
-  H['Authorization']='Bearer '+token;HG['Authorization']='Bearer '+token;
+  if(!session||!session.user)return;currentUser=session.user;
+  var token=session.access_token;H['Authorization']='Bearer '+token;HG['Authorization']='Bearer '+token;
   var isAdminEmail=currentUser.email.toLowerCase()===ADMIN_EMAIL.toLowerCase();
-  console.log('[AUTH] User:',currentUser.email,'isAdmin:',isAdminEmail);
+  console.log('[AUTH] User:',currentUser.email,'admin:',isAdminEmail);
   fetch(API+'/perfis?id=eq.'+currentUser.id,{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+token}})
-  .then(function(r){console.log('[AUTH] Perfis status:',r.status);return r.json();})
+  .then(function(r){return r.json();})
   .then(function(perfis){
     console.log('[AUTH] Perfis:',perfis);
     if(perfis&&perfis.length>0){
       var perfil=perfis[0];
-      if(!perfil.ativo&&!isAdminEmail){showToast('Conta pendente. Contate o Admin.','alert');sbClient.auth.signOut();return;}
+      if(!perfil.ativo&&!isAdminEmail){showToast('Conta pendente.','alert');sbClient.auth.signOut();return;}
       if(isAdminEmail&&(perfil.role!=='admin'||!perfil.ativo)){
         fetch(API+'/perfis?id=eq.'+currentUser.id,{method:'PATCH',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify({role:'admin',ativo:true})})
         .then(function(r){return r.json();}).then(function(r){completeLogin(r&&r.length?r[0]:Object.assign(perfil,{role:'admin',ativo:true}));})
@@ -871,23 +866,21 @@ function handleSession(session){
       }
       completeLogin(perfil);
     } else {
-      console.log('[AUTH] Creating perfil...');
       var meta=currentUser.user_metadata||{};var nome=meta.nome||currentUser.email.split('@')[0];
       var role=isAdminEmail?'admin':'visualizador';var ativo=isAdminEmail;
       fetch(API+'/perfis',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify({id:currentUser.id,nome:nome,email:currentUser.email,role:role,ativo:ativo})})
-      .then(function(r){console.log('[AUTH] Create status:',r.status);return r.json();})
+      .then(function(r){return r.json();})
       .then(function(r){
-        console.log('[AUTH] Created:',r);
-        if(r&&r.length){if(!r[0].ativo&&!isAdminEmail){showToast('Registrado! Aguarde aprova\u00e7\u00e3o.','alert');sbClient.auth.signOut();return;}completeLogin(r[0]);}
+        if(r&&r.length){if(!r[0].ativo&&!isAdminEmail){showToast('Aguarde aprova\u00e7\u00e3o.','alert');sbClient.auth.signOut();return;}completeLogin(r[0]);}
         else if(isAdminEmail){completeLogin({id:currentUser.id,nome:nome,email:currentUser.email,role:'admin',ativo:true});}
-        else{showToast('Registrado! Aguarde aprova\u00e7\u00e3o.','alert');sbClient.auth.signOut();}
-      }).catch(function(err){console.error('[AUTH] Create error:',err);if(isAdminEmail)completeLogin({id:currentUser.id,nome:meta.nome||'Admin',email:currentUser.email,role:'admin',ativo:true});else{showToast('Erro. Tente novamente.','error');sbClient.auth.signOut();}});
+        else{showToast('Aguarde aprova\u00e7\u00e3o.','alert');sbClient.auth.signOut();}
+      }).catch(function(){if(isAdminEmail)completeLogin({id:currentUser.id,nome:'Admin',email:currentUser.email,role:'admin',ativo:true});else sbClient.auth.signOut();});
     }
-  }).catch(function(err){console.error('[AUTH] Fetch error:',err);if(isAdminEmail){var meta=currentUser.user_metadata||{};completeLogin({id:currentUser.id,nome:meta.nome||'Admin',email:currentUser.email,role:'admin',ativo:true});}else{showToast('Erro de conex\u00e3o.','error');sbClient.auth.signOut();}});
+  }).catch(function(){if(isAdminEmail){var meta=currentUser.user_metadata||{};completeLogin({id:currentUser.id,nome:meta.nome||'Admin',email:currentUser.email,role:'admin',ativo:true});}else sbClient.auth.signOut();});
 }
 
 function completeLogin(perfil){
-  console.log('[AUTH] Complete!',perfil.nome,perfil.role);
+  console.log('[AUTH] OK!',perfil.nome,perfil.role);
   currentRole=perfil.role||'visualizador';
   document.getElementById('loginOverlay').classList.add('hidden');
   var initials=perfil.nome.split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase();
@@ -901,25 +894,25 @@ function completeLogin(perfil){
 }
 
 function applyRoleAccess(){
-  console.log('[AUTH] Applying role:',currentRole);
+  console.log('[AUTH] Role:',currentRole);
   document.body.className='role-'+currentRole;
   var adminNav=document.getElementById('navAdmin');
   if(adminNav){
-    if(currentRole==='admin'){adminNav.style.setProperty('display','flex','important');}
-    else{adminNav.style.setProperty('display','none','important');}
+    if(currentRole==='admin')adminNav.style.setProperty('display','flex','important');
+    else adminNav.style.setProperty('display','none','important');
   }
 }
 
 function switchAuthTab(tab){var btns=document.querySelectorAll('#authTabs button');btns[0].className=(tab==='login')?'active':'';btns[1].className=(tab==='register')?'active':'';document.getElementById('loginForm').style.display=(tab==='login')?'block':'none';document.getElementById('registerForm').style.display=(tab==='register')?'block':'none';document.getElementById('authError').textContent='';document.getElementById('regError').textContent='';}
-function doLogin(){var email=document.getElementById('authEmail').value.trim();var pw=document.getElementById('authPassword').value;var errEl=document.getElementById('authError');if(!email||!pw){errEl.textContent='Preencha email e senha';return;}errEl.textContent='';var btn=document.getElementById('authBtn');btn.disabled=true;btn.textContent='Entrando...';sbClient.auth.signInWithPassword({email:email,password:pw}).then(function(res){btn.disabled=false;btn.textContent='Entrar';if(res.error){console.error('[AUTH] Login err:',res.error);errEl.textContent=res.error.message==='Invalid login credentials'?'Email ou senha incorretos':res.error.message;return;}console.log('[AUTH] Login OK');handleSession(res.data.session);}).catch(function(err){btn.disabled=false;btn.textContent='Entrar';errEl.textContent='Erro de conex\u00e3o';});}
-function doRegister(){var nome=document.getElementById('regNome').value.trim();var email=document.getElementById('regEmail').value.trim();var pw=document.getElementById('regPassword').value;var errEl=document.getElementById('regError');if(!nome||!email||!pw){errEl.textContent='Preencha todos os campos';return;}if(pw.length<6){errEl.textContent='Senha: m\u00ednimo 6 caracteres';return;}errEl.textContent='';sbClient.auth.signUp({email:email,password:pw,options:{data:{nome:nome}}}).then(function(res){if(res.error){errEl.textContent=res.error.message;return;}if(res.data&&res.data.session)handleSession(res.data.session);else{showToast('Conta criada! Verifique email.','success');switchAuthTab('login');}});}
+function doLogin(){var email=document.getElementById('authEmail').value.trim();var pw=document.getElementById('authPassword').value;var errEl=document.getElementById('authError');if(!email||!pw){errEl.textContent='Preencha email e senha';return;}errEl.textContent='';var btn=document.getElementById('authBtn');btn.disabled=true;btn.textContent='Entrando...';sbClient.auth.signInWithPassword({email:email,password:pw}).then(function(res){btn.disabled=false;btn.textContent='Entrar';if(res.error){errEl.textContent=res.error.message==='Invalid login credentials'?'Email ou senha incorretos':res.error.message;return;}handleSession(res.data.session);}).catch(function(){btn.disabled=false;btn.textContent='Entrar';errEl.textContent='Erro de conex\u00e3o';});}
+function doRegister(){var nome=document.getElementById('regNome').value.trim();var email=document.getElementById('regEmail').value.trim();var pw=document.getElementById('regPassword').value;var errEl=document.getElementById('regError');if(!nome||!email||!pw){errEl.textContent='Preencha todos os campos';return;}if(pw.length<6){errEl.textContent='Senha: min 6 caracteres';return;}errEl.textContent='';sbClient.auth.signUp({email:email,password:pw,options:{data:{nome:nome}}}).then(function(res){if(res.error){errEl.textContent=res.error.message;return;}if(res.data&&res.data.session)handleSession(res.data.session);else{showToast('Conta criada!','success');switchAuthTab('login');}});}
 function doLogout(){sbClient.auth.signOut().then(function(){currentUser=null;currentRole='visualizador';H['Authorization']='Bearer '+SUPABASE_KEY;HG['Authorization']='Bearer '+SUPABASE_KEY;document.getElementById('loginOverlay').classList.remove('hidden');document.body.className='';});}
 
-function renderAdminUsers(){if(currentRole!=='admin'){showToast('Acesso negado','error');return;}var c=document.getElementById('usersTableContainer');c.innerHTML='<p style="color:#999">Carregando...</p>';apiGet('perfis','?order=created_at.desc').then(function(users){if(!users||!users.length||users.message){c.innerHTML='<p style="color:#999">Nenhum usu\u00e1rio. Verifique a tabela perfis.</p>';return;}var html='<table class="users-table"><thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Ativo</th><th>Criado</th><th>A\u00e7\u00f5es</th></tr></thead><tbody>';users.forEach(function(u){var isMe=currentUser&&u.id===currentUser.id;html+='<tr><td style="font-weight:600">'+u.nome+(isMe?' <span style="font-size:.7em;color:#999">(voc\u00ea)</span>':'')+'</td><td>'+u.email+'</td><td><select class="inline-select" onchange="changeUserRole(\''+u.id+'\',this.value)"'+(isMe?' disabled':'')+'><option value="admin"'+(u.role==='admin'?' selected':'')+'>Admin</option><option value="lider"'+(u.role==='lider'?' selected':'')+'>L\u00edder</option><option value="analista"'+(u.role==='analista'?' selected':'')+'>Analista</option><option value="visualizador"'+(u.role==='visualizador'?' selected':'')+'>Visualizador</option></select></td><td><label style="cursor:pointer"><input type="checkbox"'+(u.ativo?' checked':'')+' onchange="toggleUserActive(\''+u.id+'\',this.checked)"'+(isMe?' disabled':'')+' style="cursor:pointer"> '+(u.ativo?'Sim':'N\u00e3o')+'</label></td><td style="font-size:.8em;color:#999">'+formatDate(u.created_at)+'</td><td>'+(isMe?'-':'<button class="btn btn-sm btn-danger" onclick="deleteUserAccount(\''+u.id+'\')">Excluir</button>')+'</td></tr>';});html+='</tbody></table><p style="font-size:.78em;color:#999;margin-top:12px">Total: '+users.length+'</p>';c.innerHTML=html;}).catch(function(){c.innerHTML='<p style="color:#E74C3C">Erro ao carregar. Verifique tabela perfis.</p>';});}
+function renderAdminUsers(){if(currentRole!=='admin'){showToast('Acesso negado','error');return;}var c=document.getElementById('usersTableContainer');c.innerHTML='<p style="color:#999">Carregando...</p>';apiGet('perfis','?order=created_at.desc').then(function(users){if(!users||!users.length||users.message){c.innerHTML='<p style="color:#999">Nenhum usu\u00e1rio.</p>';return;}var html='<table class="users-table"><thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Ativo</th><th>Criado</th><th>A\u00e7\u00f5es</th></tr></thead><tbody>';users.forEach(function(u){var isMe=currentUser&&u.id===currentUser.id;html+='<tr><td style="font-weight:600">'+u.nome+(isMe?' <span style="font-size:.7em;color:#999">(voc\u00ea)</span>':'')+'</td><td>'+u.email+'</td><td><select class="inline-select" onchange="changeUserRole(\''+u.id+'\',this.value)"'+(isMe?' disabled':'')+'><option value="admin"'+(u.role==='admin'?' selected':'')+'>Admin</option><option value="lider"'+(u.role==='lider'?' selected':'')+'>L\u00edder</option><option value="analista"'+(u.role==='analista'?' selected':'')+'>Analista</option><option value="visualizador"'+(u.role==='visualizador'?' selected':'')+'>Visualizador</option></select></td><td><label style="cursor:pointer"><input type="checkbox"'+(u.ativo?' checked':'')+' onchange="toggleUserActive(\''+u.id+'\',this.checked)"'+(isMe?' disabled':'')+' style="cursor:pointer"> '+(u.ativo?'Sim':'N\u00e3o')+'</label></td><td style="font-size:.8em;color:#999">'+formatDate(u.created_at)+'</td><td>'+(isMe?'-':'<button class="btn btn-sm btn-danger" onclick="deleteUserAccount(\''+u.id+'\')">Excluir</button>')+'</td></tr>';});html+='</tbody></table><p style="font-size:.78em;color:#999;margin-top:12px">Total: '+users.length+'</p>';c.innerHTML=html;}).catch(function(){c.innerHTML='<p style="color:#E74C3C">Erro ao carregar.</p>';});}
 function changeUserRole(uid,role){apiPatch('perfis',uid,{role:role}).then(function(){showToast('Atualizado!','success');renderAdminUsers();}).catch(function(){showToast('Erro','error');});}
 function toggleUserActive(uid,active){apiPatch('perfis',uid,{ativo:active}).then(function(){showToast(active?'Ativado!':'Desativado!','success');renderAdminUsers();}).catch(function(){showToast('Erro','error');});}
 function deleteUserAccount(uid){if(!confirm('Excluir permanentemente?'))return;apiDelete('perfis',uid).then(function(ok){if(ok){showToast('Exclu\u00eddo!','success');renderAdminUsers();}else showToast('Erro','error');});}
-function openNewUserModal(){document.getElementById('nuNome').value='';document.getElementById('nuEmail').value='';document.getElementById('nuSenha').value='';document.getElementById('nuRole').value='analista';document.getElementById('nuAtivo').value='true';document.getElementById('newUserModal').classList.add('show');}
+function openNewUserModal(){console.log('[ADMIN] Opening new user modal');document.getElementById('nuNome').value='';document.getElementById('nuEmail').value='';document.getElementById('nuSenha').value='';document.getElementById('nuRole').value='analista';document.getElementById('nuAtivo').value='true';document.getElementById('newUserModal').classList.add('show');}
 function createUser(){var nome=document.getElementById('nuNome').value.trim();var email=document.getElementById('nuEmail').value.trim();var senha=document.getElementById('nuSenha').value;var role=document.getElementById('nuRole').value;var ativo=document.getElementById('nuAtivo').value==='true';if(!nome||!email||!senha){showToast('Preencha tudo','alert');return;}if(senha.length<6){showToast('Senha: min 6','alert');return;}showLoading();sbClient.auth.getSession().then(function(res){var adminSession=res.data.session;sbClient.auth.signUp({email:email,password:senha,options:{data:{nome:nome}}}).then(function(signRes){if(signRes.error){hideLoading();showToast('Erro: '+signRes.error.message,'error');return;}var newId=signRes.data.user?signRes.data.user.id:null;sbClient.auth.setSession({access_token:adminSession.access_token,refresh_token:adminSession.refresh_token}).then(function(){H['Authorization']='Bearer '+adminSession.access_token;HG['Authorization']='Bearer '+adminSession.access_token;if(newId){fetch(API+'/perfis',{method:'POST',headers:H,body:JSON.stringify({id:newId,nome:nome,email:email,role:role,ativo:ativo})}).then(function(){hideLoading();closeModal('newUserModal');showToast('"'+nome+'" criado!','success');renderAdminUsers();});}else{hideLoading();closeModal('newUserModal');showToast('Criado!','success');renderAdminUsers();}});});});}
 
 
