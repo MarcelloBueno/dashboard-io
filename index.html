@@ -84,14 +84,14 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 .ab:hover{background:#ddd}.ab.del:hover{background:#fce4ec;color:#E74C3C}
 .inline-input{padding:4px 8px;border:1px solid #ccc;border-radius:4px;font-size:.84em;font-family:inherit;width:100%}
 .inline-select{padding:4px 8px;border:1px solid #ccc;border-radius:4px;font-size:.84em;font-family:inherit}
-.toast{position:fixed;bottom:30px;right:30px;background:var(--dark);color:#fff;padding:14px 24px;border-radius:10px;font-size:.88em;opacity:0;transform:translateY(20px);transition:.3s;z-index:100;pointer-events:none}
+/* old toast css removed - see Sprint 4 */
 .toast.show{opacity:1;transform:translateY(0)}
 .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:50;justify-content:center;align-items:center}
 .modal-overlay.show{display:flex}
 .modal{background:var(--white);border-radius:14px;padding:28px;width:90%;max-width:550px;box-shadow:0 12px 40px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto}
 .modal h3{margin-bottom:16px;color:var(--dark)}
 .edit-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:768px){.sidebar{width:60px}.sidebar .logo,.sidebar .sub,.sidebar nav a span{display:none}.main{margin-left:60px}.cards{grid-template-columns:1fr}.edit-row{grid-template-columns:1fr}}
+/* old @media removed - see Sprint 4 */
 
 /* ========== SPRINT 3 STYLES ========== */
 .ganho-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px}
@@ -119,9 +119,46 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 .fb-delete-btn{position:absolute;top:8px;right:10px;background:none;border:none;color:#ccc;font-size:1.1em;cursor:pointer;transition:.2s;padding:2px 6px;border-radius:4px}
 .fb-delete-btn:hover{color:#E74C3C;background:rgba(231,76,60,.08)}
 
+/* ========== SPRINT 4 STYLES ========== */
+.spinner-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,.55);z-index:200;justify-content:center;align-items:center}
+.spinner-overlay.show{display:flex}
+.spinner{width:44px;height:44px;border:4px solid #eee;border-top:4px solid var(--primary);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:30px;right:30px;padding:14px 24px;border-radius:10px;font-size:.88em;opacity:0;transform:translateY(20px);transition:.3s;z-index:100;pointer-events:none;display:flex;align-items:center;gap:10px;max-width:420px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.toast.show{opacity:1;transform:translateY(0);pointer-events:auto}
+.toast.success{background:#27AE60;color:#fff}
+.toast.error{background:#E74C3C;color:#fff}
+.toast.alert{background:#F5842B;color:#fff}
+.toast.info{background:var(--dark);color:#fff}
+.toast .undo-btn{background:rgba(255,255,255,.25);color:#fff;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.82em;font-weight:600;font-family:inherit;white-space:nowrap}
+.toast .undo-btn:hover{background:rgba(255,255,255,.4)}
+.breadcrumbs{padding:8px 28px;background:var(--white);border-bottom:1px solid #eee;font-size:.82em;color:#999;display:flex;align-items:center;gap:6px}
+.breadcrumbs a{color:var(--blue);text-decoration:none;cursor:pointer}
+.breadcrumbs a:hover{text-decoration:underline}
+.breadcrumbs .sep{color:#ccc}
+.hamburger{display:none;background:none;border:none;font-size:1.4em;cursor:pointer;color:var(--dark);padding:4px 8px}
+@media(max-width:768px){
+  .sidebar{width:0;transform:translateX(-200px);transition:transform .3s}
+  .sidebar.open{width:200px;transform:translateX(0)}
+  .sidebar .logo,.sidebar .sub,.sidebar nav a span{display:block}
+  .main{margin-left:0!important}
+  .hamburger{display:block}
+  .cards{grid-template-columns:1fr}
+  .edit-row{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .ganho-summary{grid-template-columns:repeat(2,1fr)}
+  .info-grid{grid-template-columns:1fr}
+  .detail-header{flex-direction:column;text-align:center}
+  .tabs{justify-content:center}
+  .breadcrumbs{padding:8px 16px;font-size:.76em}
+  .content{padding:16px}
+}
+
 </style>
 </head>
 <body>
+<div class="spinner-overlay" id="loadingSpinner"><div class="spinner"></div></div>
+
 
 <div class="sidebar">
 <div class="logo">ETN Soluções</div>
@@ -134,9 +171,10 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 </div>
 <div class="main">
 <div class="header">
-<h1 id="pageTitle">Dashboard de Projetos</h1>
+<div style="display:flex;align-items:center;gap:10px"><button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()">☰</button><h1 id="pageTitle">Dashboard de Projetos</h1></div>
 <div class="user"><span>Marcello Kaio</span><div class="avatar">MK</div></div>
 </div>
+<div class="breadcrumbs" id="breadcrumbs"><a onclick="navigateTo('dashboard',document.querySelector('.sidebar nav a'))">Dashboard</a></div>
 <div class="content">
 <div id="pageDashboard" class="page active">
 <div class="stats" id="statsContainer"></div>
@@ -241,16 +279,28 @@ var H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Typ
 var HG={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
 var projetos=[],currentProject=null,currentRating=0;
 
-function apiGet(t,q){return fetch(API+'/'+t+(q||''),{headers:HG}).then(function(r){return r.json();});}
-function apiPost(t,d){return fetch(API+'/'+t,{method:'POST',headers:H,body:JSON.stringify(d)}).then(function(r){return r.json();});}
-function apiPatch(t,id,d){return fetch(API+'/'+t+'?id=eq.'+id,{method:'PATCH',headers:H,body:JSON.stringify(d)}).then(function(r){return r.json();});}
-function apiDelete(t,id){return fetch(API+'/'+t+'?id=eq.'+id,{method:'DELETE',headers:HG}).then(function(r){return r.ok;});}
+function apiGet(t,q){showLoading();return fetch(API+'/'+t+(q||''),{headers:HG}).then(function(r){return r.json();}).finally(function(){hideLoading();});}
+function apiPost(t,d){showLoading();return fetch(API+'/'+t,{method:'POST',headers:H,body:JSON.stringify(d)}).then(function(r){return r.json();}).finally(function(){hideLoading();});}
+function apiPatch(t,id,d){showLoading();return fetch(API+'/'+t+'?id=eq.'+id,{method:'PATCH',headers:H,body:JSON.stringify(d)}).then(function(r){return r.json();}).finally(function(){hideLoading();});}
+function apiDelete(t,id){showLoading();return fetch(API+'/'+t+'?id=eq.'+id,{method:'DELETE',headers:HG}).then(function(r){return r.ok;}).finally(function(){hideLoading();});}
 
 function getStatusClass(s){var m={'Ativo':'ativo','Conclu\u00eddo':'concluido','Planejamento':'planejamento','Pausado':'pausado','Pendente':'pendente'};return m[s]||'pausado';}
 function getStatusColor(s){var m={'Ativo':'#0097A9','Conclu\u00eddo':'#27AE60','Planejamento':'#F5842B','Pausado':'#A7A8AA','Pendente':'#A7A8AA'};return m[s]||'#A7A8AA';}
 function formatDate(d){if(!d)return'-';var p=d.split('T')[0].split('-');return p[2]+'/'+p[1]+'/'+p[0];}
 function toIso(d){if(!d)return null;if(d.indexOf('/')>=0){var p=d.split('/');return p[2]+'-'+p[1]+'-'+p[0];}return d;}
-function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3000);}
+function showToast(m,type,undoFn){
+  var t=document.getElementById('toast');
+  t.className='toast '+(type||'info');
+  t.innerHTML='<span>'+m+'</span>';
+  if(undoFn){
+    var btn=document.createElement('button');btn.className='undo-btn';btn.textContent='Desfazer';
+    btn.onclick=function(){clearTimeout(t._timer);t.classList.remove('show');undoFn();};
+    t.appendChild(btn);
+  }
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(function(){t.classList.remove('show');},undoFn?5000:3000);
+}
 function formatCurrency(v){if(!v&&v!==0)return'R$ 0,00';return'R$ '+parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 
 function navigateTo(page,el){
@@ -261,12 +311,13 @@ function navigateTo(page,el){
   document.getElementById('pageTitle').textContent=titles[page]||'Dashboard';
   var pages={'dashboard':'pageDashboard','metricas':'pageMetricas','novo':'pageNovo','detalhes':'pageDetalhes'};
   var tgt=document.getElementById(pages[page]);if(tgt)tgt.classList.add('active');
-  if(page==='dashboard')loadDashboard();
-  if(page==='metricas')renderMetrics();
+  if(page==='dashboard'){loadDashboard();updateBreadcrumbs([{label:'Dashboard'}]);}
+  if(page==='metricas'){renderMetrics();updateBreadcrumbs([{label:'Dashboard',link:true},{label:'M\u00e9tricas'}]);}
+  if(page==='novo')updateBreadcrumbs([{label:'Dashboard',link:true},{label:'Novo Projeto'}]);
 }
 
 function loadDashboard(){
-  apiGet('projetos','?order=id').then(function(data){projetos=data;renderStats();renderCards(projetos);}).catch(function(e){showToast('Erro ao carregar');console.error(e);});
+  apiGet('projetos','?order=id').then(function(data){projetos=data;renderStats();renderCards(projetos);}).catch(function(e){showToast('Erro ao carregar','error');console.error(e);});
 }
 function renderStats(){
   var t=projetos.length,a=projetos.filter(function(p){return p.status==='Ativo';}).length,c=projetos.filter(function(p){return p.status==='Conclu\u00eddo';}).length;
@@ -289,7 +340,7 @@ function filterProjects(){
 
 function openProject(id){
   currentProject=projetos.filter(function(p){return p.id===id;})[0];if(!currentProject)return;
-  navigateTo('detalhes',null);renderDetailHeader(currentProject);
+  navigateTo('detalhes',null);renderDetailHeader(currentProject);updateBreadcrumbs([{label:'Dashboard',link:true},{label:currentProject.titulo}]);
   switchTab('overview',document.querySelector('#tabsBar button'));
 }
 function renderDetailHeader(p){
@@ -300,14 +351,15 @@ function switchTab(name,btn){
   document.querySelectorAll('#tabsBar button').forEach(function(b){b.classList.remove('active');});
   if(btn)btn.classList.add('active');
   var fn={'overview':renderOverview,'phases':renderPhases,'feedback':renderFeedback,'documents':renderDocuments,'history':renderHistory,'timeline':renderTimeline,'ganhos':renderGanhos};
-  if(fn[name])fn[name](currentProject);
+  if(fn[name]){fn[name](currentProject);if(currentProject)updateBreadcrumbs([{label:'Dashboard',link:true},{label:currentProject.titulo,link:true},{label:({'overview':'Vis\u00e3o Geral','phases':'Fases e Tarefas','feedback':'Feedback','documents':'Documentos','history':'Hist\u00f3rico','timeline':'Timeline','ganhos':'Ganhos'})[name]||name}]);}
 }
 function openEditModal(){var p=currentProject;document.getElementById('eTitulo').value=p.titulo;document.getElementById('eDesc').value=p.descricao||'';document.getElementById('eResp').value=p.responsavel||'';document.getElementById('eStatus').value=p.status;document.getElementById('eProgresso').value=p.progresso;document.getElementById('ePri').value=p.prioridade;document.getElementById('eOrc').value=p.orcamento||'';document.getElementById('eCat').value=p.categoria||'Data Analytics';document.getElementById('eInicio').value=p.data_inicio?p.data_inicio.split('T')[0]:'';document.getElementById('eFim').value=p.data_fim?p.data_fim.split('T')[0]:'';document.getElementById('editModal').classList.add('show');}
 function closeModal(id){document.getElementById(id).classList.remove('show');}
-function saveProject(){var d={titulo:document.getElementById('eTitulo').value,descricao:document.getElementById('eDesc').value,responsavel:document.getElementById('eResp').value,status:document.getElementById('eStatus').value,progresso:parseInt(document.getElementById('eProgresso').value)||0,prioridade:document.getElementById('ePri').value,categoria:document.getElementById('eCat').value,orcamento:document.getElementById('eOrc').value,data_inicio:document.getElementById('eInicio').value||null,data_fim:document.getElementById('eFim').value||null,updated_at:new Date().toISOString()};apiPatch('projetos',currentProject.id,d).then(function(r){if(r&&r.length){currentProject=r[0];var idx=projetos.findIndex(function(p){return p.id===currentProject.id;});if(idx>=0)projetos[idx]=currentProject;renderDetailHeader(currentProject);closeModal('editModal');showToast('Projeto atualizado!');apiPost('historico',{projeto_id:currentProject.id,texto:'Projeto editado: '+d.status+' ('+d.progresso+'%)',tipo:'atualizacao'});}}).catch(function(){showToast('Erro ao salvar');});}
+function saveProject(){var d={titulo:document.getElementById('eTitulo').value,descricao:document.getElementById('eDesc').value,responsavel:document.getElementById('eResp').value,status:document.getElementById('eStatus').value,progresso:parseInt(document.getElementById('eProgresso').value)||0,prioridade:document.getElementById('ePri').value,categoria:document.getElementById('eCat').value,orcamento:document.getElementById('eOrc').value,data_inicio:document.getElementById('eInicio').value||null,data_fim:document.getElementById('eFim').value||null,updated_at:new Date().toISOString()};apiPatch('projetos',currentProject.id,d).then(function(r){if(r&&r.length){currentProject=r[0];var idx=projetos.findIndex(function(p){return p.id===currentProject.id;});if(idx>=0)projetos[idx]=currentProject;renderDetailHeader(currentProject);closeModal('editModal');showToast('Projeto atualizado!','success');apiPost('historico',{projeto_id:currentProject.id,texto:'Projeto editado: '+d.status+' ('+d.progresso+'%)',tipo:'atualizacao'});}}).catch(function(){showToast('Erro ao salvar','error');});}
 function deleteProject(){
-  if(!confirm('Excluir o projeto "'+currentProject.titulo+'"?'))return;
-  apiDelete('projetos',currentProject.id).then(function(ok){if(ok){showToast('Projeto exclu\u00eddo!');navigateTo('dashboard',document.querySelector('.sidebar nav a'));}else showToast('Erro ao excluir');});
+  var delP=Object.assign({},currentProject);
+  if(!confirm('Excluir o projeto "'+delP.titulo+'"?'))return;
+  apiDelete('projetos',delP.id).then(function(ok){if(ok){showToast('Projeto exclu\u00eddo!','success',function(){apiPost('projetos',{titulo:delP.titulo,descricao:delP.descricao,responsavel:delP.responsavel,categoria:delP.categoria,prioridade:delP.prioridade,status:delP.status,progresso:delP.progresso,data_inicio:delP.data_inicio,data_fim:delP.data_fim,orcamento:delP.orcamento}).then(function(){showToast('Projeto restaurado!','success');loadDashboard();});});navigateTo('dashboard',document.querySelector('.sidebar nav a'));}else showToast('Erro ao excluir','error');});
 }
 function renderOverview(p){
   document.getElementById('tabContent').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div><h3 style="margin-bottom:12px">Descri\u00e7\u00e3o</h3><p style="font-size:.9em;color:#555;line-height:1.6">'+(p.descricao||'Sem descri\u00e7\u00e3o')+'</p></div><div><h3 style="margin-bottom:12px">Informa\u00e7\u00f5es</h3><div class="info-grid"><div class="info-item"><div class="label">Categoria</div><div class="val">'+(p.categoria||'-')+'</div></div><div class="info-item"><div class="label">Resp.</div><div class="val">'+p.responsavel+'</div></div><div class="info-item"><div class="label">Prioridade</div><div class="val">'+p.prioridade+'</div></div><div class="info-item"><div class="label">Or\u00e7amento</div><div class="val">'+(p.orcamento||'-')+'</div></div><div class="info-item"><div class="label">In\u00edcio</div><div class="val">'+formatDate(p.data_inicio)+'</div></div><div class="info-item"><div class="label">Fim</div><div class="val">'+formatDate(p.data_fim)+'</div></div></div></div></div>';
@@ -335,8 +387,8 @@ function togglePhase(i){var el=document.getElementById('phase-'+i);if(el)el.clas
 function addPhase(pid){
   var nome=prompt('Nome da nova fase:');if(!nome)return;
   apiPost('fases',{projeto_id:pid,titulo:nome,status:'Pendente',progresso:0}).then(function(r){
-    if(r&&r.length){showToast('Fase criada!');apiPost('historico',{projeto_id:pid,texto:'Fase adicionada: '+nome,tipo:'atualizacao'});renderPhases(currentProject);}
-  }).catch(function(){showToast('Erro ao criar fase');});
+    if(r&&r.length){showToast('Fase criada!','success');apiPost('historico',{projeto_id:pid,texto:'Fase adicionada: '+nome,tipo:'atualizacao'});renderPhases(currentProject);}
+  }).catch(function(){showToast('Erro ao criar fase','error');});
 }
 function editPhase(fid,pid){
   apiGet('fases','?id=eq.'+fid).then(function(fases){
@@ -347,11 +399,11 @@ function editPhase(fid,pid){
 }
 function savePhaseEdit(fid,pid){
   var d={titulo:document.getElementById('ef-nome').value,status:document.getElementById('ef-status').value,data_inicio:document.getElementById('ef-ini').value||null,data_fim:document.getElementById('ef-fim').value||null,progresso:parseInt(document.getElementById('ef-prog').value)||0};
-  apiPatch('fases',fid,d).then(function(){showToast('Fase atualizada!');apiPost('historico',{projeto_id:pid,texto:'Fase editada: '+d.titulo,tipo:'atualizacao'});renderPhases(currentProject);}).catch(function(){showToast('Erro ao salvar fase');});
+  apiPatch('fases',fid,d).then(function(){showToast('Fase atualizada!','success');apiPost('historico',{projeto_id:pid,texto:'Fase editada: '+d.titulo,tipo:'atualizacao'});renderPhases(currentProject);}).catch(function(){showToast('Erro ao salvar fase','error');});
 }
 function deletePhase(fid,pid){
   if(!confirm('Excluir esta fase e todas as suas tarefas?'))return;
-  apiDelete('fases',fid).then(function(ok){if(ok){showToast('Fase exclu\u00edda!');apiPost('historico',{projeto_id:pid,texto:'Fase removida',tipo:'atualizacao'});renderPhases(currentProject);recalcProgress(pid);}});
+  apiDelete('fases',fid).then(function(ok){if(ok){showToast('Fase exclu\u00edda!','success');apiPost('historico',{projeto_id:pid,texto:'Fase removida',tipo:'atualizacao'});renderPhases(currentProject);recalcProgress(pid);}});
 }
 
 function addTask(fid,pid){
@@ -362,9 +414,9 @@ function addTask(fid,pid){
   document.getElementById('nt-nome').focus();
 }
 function saveNewTask(fid,pid){
-  var nome=document.getElementById('nt-nome').value;if(!nome){showToast('Informe o nome da tarefa');return;}
+  var nome=document.getElementById('nt-nome').value;if(!nome){showToast('Informe o nome da tarefa','alert');return;}
   var d={fase_id:fid,titulo:nome,responsavel:document.getElementById('nt-resp').value||null,prazo:document.getElementById('nt-prazo').value||null,status:document.getElementById('nt-status').value};
-  apiPost('tarefas',d).then(function(r){if(r&&r.length){showToast('Tarefa adicionada!');recalcProgress(pid);renderPhases(currentProject);}}).catch(function(){showToast('Erro ao criar tarefa');});
+  apiPost('tarefas',d).then(function(r){if(r&&r.length){showToast('Tarefa adicionada!','success');recalcProgress(pid);renderPhases(currentProject);}}).catch(function(){showToast('Erro ao criar tarefa','error');});
 }
 function editTask(tid,fid,pid){
   apiGet('tarefas','?id=eq.'+tid).then(function(arr){
@@ -375,11 +427,11 @@ function editTask(tid,fid,pid){
 }
 function saveTaskEdit(tid,fid,pid){
   var d={titulo:document.getElementById('et-nome').value,responsavel:document.getElementById('et-resp').value||null,prazo:document.getElementById('et-prazo').value||null,status:document.getElementById('et-status').value};
-  apiPatch('tarefas',tid,d).then(function(){showToast('Tarefa atualizada!');recalcProgress(pid);renderPhases(currentProject);}).catch(function(){showToast('Erro ao salvar tarefa');});
+  apiPatch('tarefas',tid,d).then(function(){showToast('Tarefa atualizada!','success');recalcProgress(pid);renderPhases(currentProject);}).catch(function(){showToast('Erro ao salvar tarefa','error');});
 }
 function deleteTask(tid,fid,pid){
   if(!confirm('Excluir esta tarefa?'))return;
-  apiDelete('tarefas',tid).then(function(ok){if(ok){showToast('Tarefa exclu\u00edda!');recalcProgress(pid);renderPhases(currentProject);}});
+  apiDelete('tarefas',tid).then(function(ok){if(ok){showToast('Tarefa exclu\u00edda!','success');recalcProgress(pid);renderPhases(currentProject);}});
 }
 function recalcProgress(pid){
   apiGet('fases','?projeto_id=eq.'+pid+'&order=id').then(function(fases){
@@ -418,8 +470,8 @@ function resetStars(){updateStars(currentRating);}
 function updateStars(n){var spans=document.querySelectorAll('#starRating span');spans.forEach(function(s,i){s.innerHTML=(i<n)?'&#9733;':'&#9734;';s.style.color=(i<n)?'#F5842B':'#ddd';});}
 function submitFeedback(pid){
   var a=document.getElementById('fbAutor').value,t=document.getElementById('fbText').value;
-  if(!currentRating||!a||!t){showToast('Preencha nome, nota e coment\u00e1rio');return;}
-  apiPost('feedbacks',{projeto_id:pid,autor:a,nota:currentRating,comentario:t}).then(function(){currentRating=0;showToast('Feedback enviado!');renderFeedback(currentProject);});
+  if(!currentRating||!a||!t){showToast('Preencha nome, nota e coment\u00e1rio','alert');return;}
+  apiPost('feedbacks',{projeto_id:pid,autor:a,nota:currentRating,comentario:t}).then(function(){currentRating=0;showToast('Feedback enviado!','success');renderFeedback(currentProject);});
 }
 
 // ============================================================
@@ -434,11 +486,11 @@ function renderDocuments(p){
 }
 function uploadDocument(pid){
   var input=document.getElementById('fileInput');var file=input.files[0];if(!file)return;
-  showToast('Enviando '+file.name+'...');
+  showToast('Enviando '+file.name+'...','info');
   var path='projeto-'+pid+'/'+Date.now()+'-'+file.name;
   fetch(STORAGE+'/object/documentos/'+path,{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':file.type},body:file}).then(function(r){
     if(r.ok){var url=STORAGE+'/object/public/documentos/'+path;return apiPost('documentos',{projeto_id:pid,nome:file.name,tipo:file.name.split('.').pop().toUpperCase(),tamanho:(file.size/1024).toFixed(0)+'KB',url:url});}else throw new Error('Upload falhou');
-  }).then(function(){showToast('Documento enviado!');renderDocuments(currentProject);input.value='';}).catch(function(e){showToast('Erro: '+e.message);});
+  }).then(function(){showToast('Documento enviado!','success');renderDocuments(currentProject);input.value='';}).catch(function(e){showToast('Erro: '+e.message,'error');});
 }
 
 // ============================================================
@@ -513,15 +565,15 @@ function editGanho(gid){
   });
 }
 function saveGanho(){
-  var desc=document.getElementById('gDesc').value;if(!desc){showToast('Informe a descri\u00e7\u00e3o');return;}
+  var desc=document.getElementById('gDesc').value;if(!desc){showToast('Informe a descri\u00e7\u00e3o','alert');return;}
   var gid=document.getElementById('gId').value;var pid=document.getElementById('gId').dataset.pid;
   var d={descricao:desc,tipo:document.getElementById('gTipo').value,valor_estimado:parseFloat(document.getElementById('gEstimado').value)||0,valor_realizado:parseFloat(document.getElementById('gRealizado').value)||0,periodicidade:document.getElementById('gPeriod').value,data_referencia:document.getElementById('gData').value||null,status:document.getElementById('gStatus').value,responsavel_validacao:document.getElementById('gResp').value||null,evidencia:document.getElementById('gEvid').value||null,observacoes:document.getElementById('gObs').value||null};
-  if(gid){apiPatch('ganhos',gid,d).then(function(){closeModal('ganhoModal');showToast('Ganho atualizado!');renderGanhos(currentProject);}).catch(function(){showToast('Erro ao atualizar');});}
-  else{d.projeto_id=parseInt(pid);apiPost('ganhos',d).then(function(){closeModal('ganhoModal');showToast('Ganho registrado!');apiPost('historico',{projeto_id:parseInt(pid),texto:'Ganho adicionado: '+desc+' ('+d.tipo+')',tipo:'atualizacao'});renderGanhos(currentProject);}).catch(function(){showToast('Erro ao salvar');});}
+  if(gid){apiPatch('ganhos',gid,d).then(function(){closeModal('ganhoModal');showToast('Ganho atualizado!','success');renderGanhos(currentProject);}).catch(function(){showToast('Erro ao atualizar','error');});}
+  else{d.projeto_id=parseInt(pid);apiPost('ganhos',d).then(function(){closeModal('ganhoModal');showToast('Ganho registrado!','success');apiPost('historico',{projeto_id:parseInt(pid),texto:'Ganho adicionado: '+desc+' ('+d.tipo+')',tipo:'atualizacao'});renderGanhos(currentProject);}).catch(function(){showToast('Erro ao salvar','error');});}
 }
 function deleteGanho(gid,pid){
   if(!confirm('Excluir este ganho?'))return;
-  apiDelete('ganhos',gid).then(function(ok){if(ok){showToast('Ganho exclu\u00eddo!');renderGanhos(currentProject);}});
+  apiDelete('ganhos',gid).then(function(ok){if(ok){showToast('Ganho exclu\u00eddo!','success');renderGanhos(currentProject);}});
 }
 
 // ============================================================
@@ -556,9 +608,9 @@ function drawHorizontalBarChart(id,labels,data,colors){var c=document.getElement
 // ============================================================
 function createProject(){
   var t=document.getElementById('fTitulo').value,d=document.getElementById('fDesc').value,r=document.getElementById('fResp').value;
-  if(!t||!d||!r){showToast('Preencha t\u00edtulo, descri\u00e7\u00e3o e respons\u00e1vel');return;}
+  if(!t||!d||!r){showToast('Preencha t\u00edtulo, descri\u00e7\u00e3o e respons\u00e1vel','alert');return;}
   var np={titulo:t,descricao:d,responsavel:r,categoria:document.getElementById('fCat').value,prioridade:document.getElementById('fPri').value,data_inicio:document.getElementById('fInicio').value||null,data_fim:document.getElementById('fFim').value||null,orcamento:document.getElementById('fOrc').value||'Interno',status:document.getElementById('fStatusInicial').value||'Planejamento',progresso:0,meta_objetivo:document.getElementById('fMeta').value||null,observacoes:document.getElementById('fObs').value||null};
-  apiPost('projetos',np).then(function(r){if(r&&r.length){showToast('Projeto "'+t+'" criado!');apiPost('historico',{projeto_id:r[0].id,texto:'Projeto criado',tipo:'criacao'});document.getElementById('fTitulo').value='';document.getElementById('fDesc').value='';document.getElementById('fResp').value='';navigateTo('dashboard',document.querySelector('.sidebar nav a'));}}).catch(function(){showToast('Erro ao criar projeto');});
+  apiPost('projetos',np).then(function(r){if(r&&r.length){showToast('Projeto "'+t+'" criado!','success');apiPost('historico',{projeto_id:r[0].id,texto:'Projeto criado',tipo:'criacao'});document.getElementById('fTitulo').value='';document.getElementById('fDesc').value='';document.getElementById('fResp').value='';navigateTo('dashboard',document.querySelector('.sidebar nav a'));}}).catch(function(){showToast('Erro ao criar projeto','error');});
 }
 // ============ SPRINT 2: IMPORT/EXPORT EXCEL ============
 var importData=null;
@@ -572,17 +624,17 @@ function downloadTemplate(){
   var ws3=XLSX.utils.aoa_to_sheet([['fase_titulo','titulo','responsavel','prazo','status'],['Fase 1','Tarefa exemplo','Responsavel','2026-07-15','Pendente']]);
   XLSX.utils.book_append_sheet(wb,ws3,'Tarefas');
   XLSX.writeFile(wb,'Template_Projetos_IO.xlsx');
-  showToast('Template baixado!');
+  showToast('Template baixado!','success');
 }
 
 function exportAllExcel(){
-  if(!projetos.length){showToast('Nenhum projeto para exportar');return;}
+  if(!projetos.length){showToast('Nenhum projeto para exportar','alert');return;}
   var data=projetos.map(function(p){return{Titulo:p.titulo,Descricao:p.descricao,Responsavel:p.responsavel,Categoria:p.categoria,Prioridade:p.prioridade,Status:p.status,Progresso:p.progresso+'%',Inicio:formatDate(p.data_inicio),Fim:formatDate(p.data_fim),Orcamento:p.orcamento||''};});
   var wb=XLSX.utils.book_new();var ws=XLSX.utils.json_to_sheet(data);
   ws['!cols']=[{wch:30},{wch:40},{wch:20},{wch:16},{wch:10},{wch:14},{wch:10},{wch:12},{wch:12},{wch:14}];
   XLSX.utils.book_append_sheet(wb,ws,'Projetos');
   XLSX.writeFile(wb,'Projetos_IO_'+new Date().toISOString().split('T')[0]+'.xlsx');
-  showToast('Excel exportado!');
+  showToast('Excel exportado!','success');
 }
 
 function exportFilteredExcel(){
@@ -591,14 +643,14 @@ function exportFilteredExcel(){
   if(st)f=f.filter(function(p){return p.status===st;});
   if(cat)f=f.filter(function(p){return p.categoria===cat;});
   if(txt)f=f.filter(function(p){return(p.titulo||'').toLowerCase().indexOf(txt)>=0||(p.descricao||'').toLowerCase().indexOf(txt)>=0;});
-  if(!f.length){showToast('Nenhum projeto filtrado');return;}
+  if(!f.length){showToast('Nenhum projeto filtrado','alert');return;}
   var data=f.map(function(p){return{Titulo:p.titulo,Responsavel:p.responsavel,Status:p.status,Progresso:p.progresso+'%',Categoria:p.categoria};});
   var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(data),'Filtrados');
-  XLSX.writeFile(wb,'Projetos_Filtrados.xlsx');showToast('Exportado!');
+  XLSX.writeFile(wb,'Projetos_Filtrados.xlsx');showToast('Exportado!','success');
 }
 
 function exportProjectExcel(){
-  if(!currentProject){showToast('Nenhum projeto selecionado');return;}
+  if(!currentProject){showToast('Nenhum projeto selecionado','alert');return;}
   var p=currentProject;
   var wb=XLSX.utils.book_new();
   var ws1=XLSX.utils.json_to_sheet([{Titulo:p.titulo,Descricao:p.descricao,Responsavel:p.responsavel,Status:p.status,Progresso:p.progresso+'%',Categoria:p.categoria,Prioridade:p.prioridade,Inicio:formatDate(p.data_inicio),Fim:formatDate(p.data_fim),Orcamento:p.orcamento||''}]);
@@ -614,7 +666,7 @@ function exportProjectExcel(){
     return apiGet('ganhos','?projeto_id=eq.'+p.id+'&order=id');
   }).then(function(ganhos){
     if(ganhos&&ganhos.length){var gd=ganhos.map(function(g){return{Descricao:g.descricao,Tipo:g.tipo,Estimado:g.valor_estimado,Realizado:g.valor_realizado,Periodicidade:g.periodicidade,Status:g.status};});XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(gd),'Ganhos');}
-    XLSX.writeFile(wb,'Projeto_'+p.titulo.replace(/[^a-zA-Z0-9]/g,'_')+'.xlsx');showToast('Projeto exportado!');
+    XLSX.writeFile(wb,'Projeto_'+p.titulo.replace(/[^a-zA-Z0-9]/g,'_')+'.xlsx');showToast('Projeto exportado!','success');
   });
 }
 
@@ -645,8 +697,8 @@ function processImport(e){
 }
 
 function confirmImport(){
-  if(!importData||!importData.projetos.length){showToast('Nenhum dado para importar');return;}
-  showToast('Importando '+importData.projetos.length+' projeto(s)...');
+  if(!importData||!importData.projetos.length){showToast('Nenhum dado para importar','alert');return;}
+  showToast('Importando '+importData.projetos.length+' projeto(s)...','info');
   var projetoMap={};
   var chain=Promise.resolve();
   importData.projetos.forEach(function(p){
@@ -675,8 +727,8 @@ function confirmImport(){
       return tChain;
     });
   }).then(function(){
-    closeModal('importModal');showToast('Importacao concluida!');importData=null;loadDashboard();
-  }).catch(function(err){showToast('Erro na importacao: '+err.message);});
+    closeModal('importModal');showToast('Importacao concluida!','success');importData=null;loadDashboard();
+  }).catch(function(err){showToast('Erro na importacao: '+err.message,'error');});
 }
 // ============================================================
 
@@ -776,16 +828,16 @@ function buildGanhosDashboard(ganhos){
 function deleteFeedback(fid,pid){
   if(!confirm('Excluir este feedback?'))return;
   apiDelete('feedbacks',fid).then(function(ok){
-    if(ok){showToast('Feedback exclu\u00eddo!');var p=projetos.find(function(x){return x.id===pid;});if(p)renderFeedback(p);}
-    else showToast('Erro ao excluir feedback');
+    if(ok){showToast('Feedback exclu\u00eddo!','success');var p=projetos.find(function(x){return x.id===pid;});if(p)renderFeedback(p);}
+    else showToast('Erro ao excluir feedback','error');
   });
 }
 
 function deleteDocument(docId,pid){
   if(!confirm('Excluir este documento?'))return;
   apiDelete('documentos',docId).then(function(ok){
-    if(ok){showToast('Documento exclu\u00eddo!');var p=projetos.find(function(x){return x.id===pid;});if(p)renderDocuments(p);}
-    else showToast('Erro ao excluir documento');
+    if(ok){showToast('Documento exclu\u00eddo!','success');var p=projetos.find(function(x){return x.id===pid;});if(p)renderDocuments(p);}
+    else showToast('Erro ao excluir documento','error');
   });
 }
 
@@ -793,9 +845,75 @@ function renameDocument(docId,pid){
   var newName=prompt('Novo nome do documento:');
   if(!newName||!newName.trim())return;
   apiPatch('documentos',docId,{nome:newName.trim()}).then(function(r){
-    showToast('Documento renomeado!');var p=projetos.find(function(x){return x.id===pid;});if(p)renderDocuments(p);
-  }).catch(function(){showToast('Erro ao renomear');});
+    showToast('Documento renomeado!','success');var p=projetos.find(function(x){return x.id===pid;});if(p)renderDocuments(p);
+  }).catch(function(){showToast('Erro ao renomear','error');});
 }
+
+// ============================================================
+// SPRINT 4: UX IMPROVEMENTS
+// ============================================================
+
+function showLoading(){document.getElementById('loadingSpinner').classList.add('show');}
+function hideLoading(){document.getElementById('loadingSpinner').classList.remove('show');}
+
+function toggleSidebar(){
+  var sb=document.querySelector('.sidebar');
+  sb.classList.toggle('open');
+}
+
+function updateBreadcrumbs(parts){
+  var el=document.getElementById('breadcrumbs');
+  if(!el)return;
+  var html='';
+  parts.forEach(function(p,i){
+    if(i>0)html+='<span class="sep">&rsaquo;</span>';
+    if(p.link)html+='<a onclick="navigateTo(\'dashboard\',document.querySelector(\'.sidebar nav a\'))">'+p.label+'</a>';
+    else html+='<span style="color:var(--dark);font-weight:600">'+p.label+'</span>';
+  });
+  el.innerHTML=html;
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown',function(e){
+  // ESC = close any open modal
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-overlay.show').forEach(function(m){m.classList.remove('show');});
+  }
+  // Ctrl+N = new project
+  if(e.ctrlKey&&e.key==='n'){
+    e.preventDefault();
+    navigateTo('novo',document.querySelectorAll('.sidebar nav a')[2]);
+  }
+  // Enter = save in open modal (if focused inside modal)
+  if(e.key==='Enter'&&!e.shiftKey){
+    var editM=document.getElementById('editModal');
+    var ganhoM=document.getElementById('ganhoModal');
+    if(editM&&editM.classList.contains('show')){
+      var active=document.activeElement;
+      if(active&&active.tagName!=='TEXTAREA'){e.preventDefault();saveProject();}
+    }
+    if(ganhoM&&ganhoM.classList.contains('show')){
+      var active2=document.activeElement;
+      if(active2&&active2.tagName!=='TEXTAREA'){e.preventDefault();saveGanho();}
+    }
+  }
+});
+
+// Auto-close sidebar on mobile when navigating
+var _origNavigateTo=navigateTo;
+// Already defined above, let's just ensure sidebar closes on mobile
+(function(){
+  var origNav=window.navigateTo||function(){};
+  // Close sidebar on mobile after navigation is a visual enhancement
+  document.addEventListener('click',function(e){
+    var sb=document.querySelector('.sidebar');
+    var hBtn=document.getElementById('hamburgerBtn');
+    if(sb&&sb.classList.contains('open')&&!sb.contains(e.target)&&e.target!==hBtn&&!hBtn.contains(e.target)){
+      sb.classList.remove('open');
+    }
+  });
+})();
+
 
 // INIT
 document.addEventListener('DOMContentLoaded',function(){loadDashboard();});
