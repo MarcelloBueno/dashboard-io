@@ -94,7 +94,7 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 .edit-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 /* old media removed */
 
-/* ========== SPRINT 3 STYLES ========== */
+/* ========== SPRINT 3 ========== */
 .ganho-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px}
 .ganho-kpi{background:var(--white);border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.05);text-align:center;border-left:4px solid #0097A9}
 .ganho-kpi h4{font-size:.75em;text-transform:uppercase;color:#888;margin-bottom:6px;letter-spacing:.5px}
@@ -115,7 +115,7 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 .fb-card-wrap{position:relative}
 .fb-delete-btn{position:absolute;top:8px;right:10px;background:none;border:none;color:#ccc;font-size:1.1em;cursor:pointer;transition:.2s;padding:2px 6px;border-radius:4px}
 .fb-delete-btn:hover{color:#E74C3C;background:rgba(231,76,60,.08)}
-/* ========== SPRINT 4 STYLES ========== */
+/* ========== SPRINT 4 ========== */
 .spinner-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,.55);z-index:200;justify-content:center;align-items:center}
 .spinner-overlay.show{display:flex}
 .spinner{width:44px;height:44px;border:4px solid #eee;border-top:4px solid var(--primary);border-radius:50%;animation:spin .7s linear infinite}
@@ -129,7 +129,7 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 .breadcrumbs a{color:var(--blue);text-decoration:none;cursor:pointer}.breadcrumbs a:hover{text-decoration:underline}
 .breadcrumbs .sep{color:#ccc}
 .hamburger{display:none;background:none;border:none;font-size:1.4em;cursor:pointer;color:var(--dark);padding:4px 8px}
-/* ========== SPRINT 5 STYLES ========== */
+/* ========== SPRINT 5 ========== */
 .login-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#2D291C 0%,#DA291C 100%);z-index:500;display:flex;justify-content:center;align-items:center}
 .login-overlay.hidden{display:none}
 .login-box{background:#fff;border-radius:16px;padding:40px;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
@@ -151,11 +151,8 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 .user-menu .logout-btn:hover{border-color:var(--primary);color:var(--primary)}
 .users-table{width:100%;border-collapse:collapse;font-size:.86em}
 .users-table th{background:var(--dark);color:#fff;padding:10px 14px;text-align:left;font-weight:600}
-.users-table td{padding:10px 14px;border-bottom:1px solid #eee}
-.users-table tr:hover{background:var(--light)}
+.users-table td{padding:10px 14px;border-bottom:1px solid #eee}.users-table tr:hover{background:var(--light)}
 body.role-visualizador .hide-viewer{display:none!important}
-body.role-analista .hide-analista{display:none!important}
-body.role-admin .show-admin-only{display:flex!important}
 .show-admin-only{display:none!important}
 @media(max-width:768px){
   .sidebar{width:0;transform:translateX(-200px);transition:transform .3s}
@@ -325,7 +322,7 @@ body.role-admin .show-admin-only{display:flex!important}
 <h3>Novo Usuário</h3>
 <div class="form-group"><label>Nome</label><input type="text" id="nuNome"></div>
 <div class="form-group"><label>Email</label><input type="email" id="nuEmail"></div>
-<div class="form-group"><label>Senha inicial</label><input type="password" id="nuSenha" value="" placeholder="Mínimo 6 caracteres"></div>
+<div class="form-group"><label>Senha inicial</label><input type="password" id="nuSenha" placeholder="Mínimo 6 caracteres"></div>
 <div class="form-group"><label>Perfil</label><select id="nuRole"><option value="analista">Analista / Líder</option><option value="visualizador">Visualizador</option><option value="admin">Admin</option></select></div>
 <div class="form-group"><label>Ativo?</label><select id="nuAtivo"><option value="true">Sim</option><option value="false">Não</option></select></div>
 <div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-primary" onclick="createUser()">Criar</button><button class="btn btn-back" onclick="closeModal('newUserModal')">Cancelar</button></div>
@@ -813,157 +810,74 @@ function renderGanhosMetrics(){
     }
     buildGanhosDashboard(ganhos);
   }).catch(function(){
-    apiGet('ganhos','?order=id').then(function(g2){
-      if(g2&&g2.length)buildGanhosDashboard(g2);
-      else{
-        document.getElementById('ganhosKPIs').innerHTML='<div class="ganho-kpi" style="border-color:#ccc;grid-column:1/-1"><h4>Sem dados</h4><div class="kpi-value" style="font-size:1em;color:#999">Nenhum ganho registrado</div></div>';
-        document.getElementById('ganhosByType').innerHTML='<p style="color:#999;font-size:.85em">Sem dados</p>';
-        document.getElementById('top5Projects').innerHTML='<p style="color:#999;font-size:.85em">Sem dados</p>';
-      }
-    });
+    apiGet('ganhos','?order=id').then(function(g2){if(g2&&g2.length)buildGanhosDashboard(g2);});
   });
 }
 
 function buildGanhosDashboard(ganhos){
   var totalEstimado=0,totalRealizado=0;
-  ganhos.forEach(function(g){
-    totalEstimado+=(parseFloat(g.valor_estimado)||0);
-    totalRealizado+=(parseFloat(g.valor_realizado)||0);
-  });
+  ganhos.forEach(function(g){totalEstimado+=(parseFloat(g.valor_estimado)||0);totalRealizado+=(parseFloat(g.valor_realizado)||0);});
   var pctRealizacao=totalEstimado>0?Math.round((totalRealizado/totalEstimado)*100):0;
   var fmt=function(v){return'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});};
-
   var subReal=totalRealizado>=totalEstimado?'\u2705 Meta atingida':'\u26A0\uFE0F '+(100-pctRealizacao)+'% restante';
-  document.getElementById('ganhosKPIs').innerHTML=
-    '<div class="ganho-kpi" style="border-color:#0097A9"><h4>Total Estimado</h4><div class="kpi-value">'+fmt(totalEstimado)+'</div><div class="kpi-sub">'+ganhos.length+' registros</div></div>'+
-    '<div class="ganho-kpi" style="border-color:#27AE60"><h4>Total Realizado</h4><div class="kpi-value" style="color:#27AE60">'+fmt(totalRealizado)+'</div><div class="kpi-sub">'+subReal+'</div></div>'+
-    '<div class="ganho-kpi" style="border-color:#F5842B"><h4>% Realiza\u00e7\u00e3o</h4><div class="kpi-value" style="color:#F5842B">'+pctRealizacao+'%</div><div class="kpi-sub"><div style="background:#f0f0f0;border-radius:6px;height:6px;margin-top:6px"><div style="background:#F5842B;height:100%;border-radius:6px;width:'+Math.min(pctRealizacao,100)+'%"></div></div></div></div>'+
-    '<div class="ganho-kpi" style="border-color:#DA291C"><h4>Total Registros</h4><div class="kpi-value">'+ganhos.length+'</div><div class="kpi-sub">ganhos cadastrados</div></div>';
-
+  document.getElementById('ganhosKPIs').innerHTML='<div class="ganho-kpi" style="border-color:#0097A9"><h4>Total Estimado</h4><div class="kpi-value">'+fmt(totalEstimado)+'</div><div class="kpi-sub">'+ganhos.length+' registros</div></div><div class="ganho-kpi" style="border-color:#27AE60"><h4>Total Realizado</h4><div class="kpi-value" style="color:#27AE60">'+fmt(totalRealizado)+'</div><div class="kpi-sub">'+subReal+'</div></div><div class="ganho-kpi" style="border-color:#F5842B"><h4>% Realiza\u00e7\u00e3o</h4><div class="kpi-value" style="color:#F5842B">'+pctRealizacao+'%</div><div class="kpi-sub"><div style="background:#f0f0f0;border-radius:6px;height:6px;margin-top:6px"><div style="background:#F5842B;height:100%;border-radius:6px;width:'+Math.min(pctRealizacao,100)+'%"></div></div></div></div><div class="ganho-kpi" style="border-color:#DA291C"><h4>Total Registros</h4><div class="kpi-value">'+ganhos.length+'</div><div class="kpi-sub">ganhos cadastrados</div></div>';
   var tipoColors={'Ganho Real':'#27AE60','Custo Evitado':'#0097A9','Produtividade':'#F5842B','Receita Incremental':'#DA291C','Compliance':'#9B59B6','Outro':'#A7A8AA'};
-  var byType={};
-  ganhos.forEach(function(g){
-    var t=g.tipo||'Outro';
-    if(!byType[t])byType[t]={estimado:0,realizado:0,count:0};
-    byType[t].estimado+=(parseFloat(g.valor_estimado)||0);
-    byType[t].realizado+=(parseFloat(g.valor_realizado)||0);
-    byType[t].count++;
-  });
-  var maxVal=0;
-  Object.keys(byType).forEach(function(k){var v=byType[k];if(v.estimado>maxVal)maxVal=v.estimado;if(v.realizado>maxVal)maxVal=v.realizado;});
-  if(maxVal===0)maxVal=1;
-  var barsHtml='';
-  Object.keys(byType).forEach(function(tipo){
-    var d=byType[tipo];
-    var pct=maxVal>0?Math.round((d.realizado/maxVal)*100):0;
-    var color=tipoColors[tipo]||'#A7A8AA';
-    barsHtml+='<div class="ganho-bar-container">';
-    barsHtml+='<div class="ganho-bar-label"><span>'+tipo+' ('+d.count+')</span><span>'+fmt(d.realizado)+' / '+fmt(d.estimado)+'</span></div>';
-    barsHtml+='<div class="ganho-bar-track"><div class="ganho-bar-fill" style="width:'+Math.max(pct,3)+'%;background:'+color+'">'+pct+'%</div></div>';
-    barsHtml+='</div>';
-  });
-  document.getElementById('ganhosByType').innerHTML=barsHtml||'<p style="color:#999;font-size:.85em">Sem dados por tipo</p>';
-
-  var byProject={};
-  ganhos.forEach(function(g){
-    var pid=g.projeto_id;
-    var pname=(g.projetos&&g.projetos.titulo)?g.projetos.titulo:null;
-    if(!pname){var found=projetos.find(function(x){return x.id===pid;});pname=found?found.titulo:('Projeto #'+pid);}
-    if(!byProject[pid])byProject[pid]={nome:pname,estimado:0,realizado:0};
-    byProject[pid].estimado+=(parseFloat(g.valor_estimado)||0);
-    byProject[pid].realizado+=(parseFloat(g.valor_realizado)||0);
-  });
+  var byType={};ganhos.forEach(function(g){var t=g.tipo||'Outro';if(!byType[t])byType[t]={estimado:0,realizado:0,count:0};byType[t].estimado+=(parseFloat(g.valor_estimado)||0);byType[t].realizado+=(parseFloat(g.valor_realizado)||0);byType[t].count++;});
+  var maxVal=0;Object.keys(byType).forEach(function(k){var v=byType[k];if(v.estimado>maxVal)maxVal=v.estimado;if(v.realizado>maxVal)maxVal=v.realizado;});if(maxVal===0)maxVal=1;
+  var barsHtml='';Object.keys(byType).forEach(function(tipo){var d=byType[tipo];var pct=maxVal>0?Math.round((d.realizado/maxVal)*100):0;var color=tipoColors[tipo]||'#A7A8AA';barsHtml+='<div class="ganho-bar-container"><div class="ganho-bar-label"><span>'+tipo+' ('+d.count+')</span><span>'+fmt(d.realizado)+' / '+fmt(d.estimado)+'</span></div><div class="ganho-bar-track"><div class="ganho-bar-fill" style="width:'+Math.max(pct,3)+'%;background:'+color+'">'+pct+'%</div></div></div>';});
+  document.getElementById('ganhosByType').innerHTML=barsHtml||'<p style="color:#999;font-size:.85em">Sem dados</p>';
+  var byProject={};ganhos.forEach(function(g){var pid=g.projeto_id;var pname=(g.projetos&&g.projetos.titulo)?g.projetos.titulo:null;if(!pname){var found=projetos.find(function(x){return x.id===pid;});pname=found?found.titulo:('Projeto #'+pid);}if(!byProject[pid])byProject[pid]={nome:pname,estimado:0,realizado:0};byProject[pid].estimado+=(parseFloat(g.valor_estimado)||0);byProject[pid].realizado+=(parseFloat(g.valor_realizado)||0);});
   var sorted=Object.values(byProject).sort(function(a,b){return b.estimado-a.estimado;}).slice(0,5);
   var rankColors=['#DA291C','#F5842B','#0097A9','#27AE60','#A7A8AA'];
   var topHtml='<table class="top5-table"><thead><tr><th>#</th><th>Projeto</th><th>Estimado</th><th>Realizado</th><th style="width:30%">Progresso</th></tr></thead><tbody>';
-  sorted.forEach(function(p,i){
-    var barPct=p.estimado>0?Math.round((p.realizado/p.estimado)*100):0;
-    topHtml+='<tr><td><span class="rank-badge" style="background:'+rankColors[i%5]+'">'+(i+1)+'</span></td><td style="font-weight:600">'+p.nome+'</td><td>'+fmt(p.estimado)+'</td><td>'+fmt(p.realizado)+'</td><td><div style="background:#f0f0f0;border-radius:6px;height:8px"><div style="background:'+rankColors[i%5]+';height:100%;border-radius:6px;width:'+Math.min(barPct,100)+'%;transition:width .5s"></div></div><span style="font-size:.72em;color:#888">'+barPct+'%</span></td></tr>';
-  });
+  sorted.forEach(function(p,i){var barPct=p.estimado>0?Math.round((p.realizado/p.estimado)*100):0;topHtml+='<tr><td><span class="rank-badge" style="background:'+rankColors[i%5]+'">'+(i+1)+'</span></td><td style="font-weight:600">'+p.nome+'</td><td>'+fmt(p.estimado)+'</td><td>'+fmt(p.realizado)+'</td><td><div style="background:#f0f0f0;border-radius:6px;height:8px"><div style="background:'+rankColors[i%5]+';height:100%;border-radius:6px;width:'+Math.min(barPct,100)+'%;transition:width .5s"></div></div><span style="font-size:.72em;color:#888">'+barPct+'%</span></td></tr>';});
   topHtml+='</tbody></table>';
   document.getElementById('top5Projects').innerHTML=sorted.length?topHtml:'<p style="color:#999;font-size:.85em">Sem projetos com ganhos</p>';
 }
 
-function deleteFeedback(fid,pid){
-  if(!confirm('Excluir este feedback?'))return;
-  apiDelete('feedbacks',fid).then(function(ok){
-    if(ok){showToast('Feedback exclu\u00eddo!','success');var p=projetos.find(function(x){return x.id===pid;});if(p)renderFeedback(p);}
-    else showToast('Erro ao excluir feedback','error');
-  });
-}
-
-function deleteDocument(docId,pid){
-  if(!confirm('Excluir este documento?'))return;
-  apiDelete('documentos',docId).then(function(ok){
-    if(ok){showToast('Documento exclu\u00eddo!','success');var p=projetos.find(function(x){return x.id===pid;});if(p)renderDocuments(p);}
-    else showToast('Erro ao excluir documento','error');
-  });
-}
-
-function renameDocument(docId,pid){
-  var newName=prompt('Novo nome do documento:');
-  if(!newName||!newName.trim())return;
-  apiPatch('documentos',docId,{nome:newName.trim()}).then(function(r){
-    showToast('Documento renomeado!','success');var p=projetos.find(function(x){return x.id===pid;});if(p)renderDocuments(p);
-  }).catch(function(){showToast('Erro ao renomear','error');});
-}
+function deleteFeedback(fid,pid){if(!confirm('Excluir este feedback?'))return;apiDelete('feedbacks',fid).then(function(ok){if(ok){showToast('Feedback exclu\u00eddo!','success');var p=projetos.find(function(x){return x.id===pid;});if(p)renderFeedback(p);}else showToast('Erro','error');});}
+function deleteDocument(docId,pid){if(!confirm('Excluir este documento?'))return;apiDelete('documentos',docId).then(function(ok){if(ok){showToast('Documento exclu\u00eddo!','success');var p=projetos.find(function(x){return x.id===pid;});if(p)renderDocuments(p);}else showToast('Erro','error');});}
+function renameDocument(docId,pid){var n=prompt('Novo nome:');if(!n||!n.trim())return;apiPatch('documentos',docId,{nome:n.trim()}).then(function(){showToast('Renomeado!','success');var p=projetos.find(function(x){return x.id===pid;});if(p)renderDocuments(p);}).catch(function(){showToast('Erro','error');});}
 
 // ============================================================
-// SPRINT 4: UX IMPROVEMENTS
+// SPRINT 4: UX
 // ============================================================
-
 function showLoading(){document.getElementById('loadingSpinner').classList.add('show');}
 function hideLoading(){document.getElementById('loadingSpinner').classList.remove('show');}
-
 function toggleSidebar(){document.querySelector('.sidebar').classList.toggle('open');}
-
-function updateBreadcrumbs(parts){
-  var el=document.getElementById('breadcrumbs');if(!el)return;
-  var html='';
-  parts.forEach(function(p,i){
-    if(i>0)html+='<span class="sep">&rsaquo;</span>';
-    if(p.link)html+='<a onclick="navigateTo(\'dashboard\',document.querySelector(\'.sidebar nav a\'))">'+p.label+'</a>';
-    else html+='<span style="color:var(--dark);font-weight:600">'+p.label+'</span>';
-  });
-  el.innerHTML=html;
-}
+function updateBreadcrumbs(parts){var el=document.getElementById('breadcrumbs');if(!el)return;var html='';parts.forEach(function(p,i){if(i>0)html+='<span class="sep">&rsaquo;</span>';if(p.link)html+='<a onclick="navigateTo(\'dashboard\',document.querySelector(\'.sidebar nav a\'))">'+p.label+'</a>';else html+='<span style="color:var(--dark);font-weight:600">'+p.label+'</span>';});el.innerHTML=html;}
 
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){document.querySelectorAll('.modal-overlay.show').forEach(function(m){m.classList.remove('show');});}
+  if(e.key==='Escape')document.querySelectorAll('.modal-overlay.show').forEach(function(m){m.classList.remove('show');});
   if(e.ctrlKey&&e.key==='n'){e.preventDefault();navigateTo('novo',document.querySelectorAll('.sidebar nav a')[2]);}
-  if(e.key==='Enter'&&!e.shiftKey){
-    var editM=document.getElementById('editModal');
-    var ganhoM=document.getElementById('ganhoModal');
-    if(editM&&editM.classList.contains('show')){var a=document.activeElement;if(a&&a.tagName!=='TEXTAREA'){e.preventDefault();saveProject();}}
-    if(ganhoM&&ganhoM.classList.contains('show')){var a2=document.activeElement;if(a2&&a2.tagName!=='TEXTAREA'){e.preventDefault();saveGanho();}}
-  }
+  if(e.key==='Enter'&&!e.shiftKey){var eM=document.getElementById('editModal');var gM=document.getElementById('ganhoModal');if(eM&&eM.classList.contains('show')&&document.activeElement.tagName!=='TEXTAREA'){e.preventDefault();saveProject();}if(gM&&gM.classList.contains('show')&&document.activeElement.tagName!=='TEXTAREA'){e.preventDefault();saveGanho();}}
 });
-
-(function(){
-  document.addEventListener('click',function(e){
-    var sb=document.querySelector('.sidebar');
-    var hBtn=document.getElementById('hamburgerBtn');
-    if(sb&&sb.classList.contains('open')&&!sb.contains(e.target)&&e.target!==hBtn&&(!hBtn||!hBtn.contains(e.target))){
-      sb.classList.remove('open');
-    }
-  });
-})();
+(function(){document.addEventListener('click',function(e){var sb=document.querySelector('.sidebar');var hBtn=document.getElementById('hamburgerBtn');if(sb&&sb.classList.contains('open')&&!sb.contains(e.target)&&e.target!==hBtn&&(!hBtn||!hBtn.contains(e.target)))sb.classList.remove('open');});})();
 
 // ============================================================
-// SPRINT 5: AUTHENTICATION & USER MANAGEMENT
+// SPRINT 5: AUTH & USER MANAGEMENT (IMPROVED - v2)
 // ============================================================
-
 var sbClient=null,currentUser=null,currentRole='visualizador';
 var ADMIN_EMAIL='marcello.bueno@claro.com.br';
 
 function initAuth(){
+  console.log('[AUTH] Initializing...');
   sbClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
   sbClient.auth.getSession().then(function(res){
     var session=(res&&res.data)?res.data.session:null;
-    if(session){handleSession(session);}
-    else{document.getElementById('loginOverlay').classList.remove('hidden');}
+    if(session){
+      console.log('[AUTH] Session found for:',session.user.email);
+      handleSession(session);
+    } else {
+      console.log('[AUTH] No session, showing login');
+      document.getElementById('loginOverlay').classList.remove('hidden');
+    }
+  }).catch(function(err){
+    console.error('[AUTH] getSession error:',err);
+    document.getElementById('loginOverlay').classList.remove('hidden');
   });
   sbClient.auth.onAuthStateChange(function(event,session){
+    console.log('[AUTH] State change:',event);
     if(event==='SIGNED_OUT'){
       document.getElementById('loginOverlay').classList.remove('hidden');
       document.body.className='';
@@ -972,66 +886,117 @@ function initAuth(){
 }
 
 function handleSession(session){
-  if(!session||!session.user)return;
+  if(!session||!session.user){console.error('[AUTH] No user in session');return;}
   currentUser=session.user;
-  // Update API headers with JWT token
-  H['Authorization']='Bearer '+session.access_token;
-  HG['Authorization']='Bearer '+session.access_token;
+  console.log('[AUTH] User:',currentUser.email,'ID:',currentUser.id);
 
-  // Fetch or create perfil
-  apiGet('perfis','?id=eq.'+currentUser.id).then(function(perfis){
+  // Update API headers with JWT
+  var token=session.access_token;
+  H['Authorization']='Bearer '+token;
+  HG['Authorization']='Bearer '+token;
+
+  var isAdminEmail=currentUser.email.toLowerCase()===ADMIN_EMAIL.toLowerCase();
+  console.log('[AUTH] Is admin email?',isAdminEmail);
+
+  // Try to fetch existing perfil
+  fetch(API+'/perfis?id=eq.'+currentUser.id,{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+token}})
+  .then(function(r){
+    console.log('[AUTH] Perfis fetch status:',r.status);
+    return r.json();
+  })
+  .then(function(perfis){
+    console.log('[AUTH] Perfis result:',perfis);
     if(perfis&&perfis.length>0){
       var perfil=perfis[0];
-      if(!perfil.ativo){
-        showToast('Conta desativada. Contate o Admin.','error');
-        doLogout();return;
+      // Admin email always allowed regardless of ativo
+      if(!perfil.ativo&&!isAdminEmail){
+        showToast('Conta pendente de aprova\u00e7\u00e3o. Contate o Admin.','alert');
+        sbClient.auth.signOut();
+        return;
+      }
+      // Force admin role for admin email
+      if(isAdminEmail&&perfil.role!=='admin'){
+        fetch(API+'/perfis?id=eq.'+currentUser.id,{method:'PATCH',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify({role:'admin',ativo:true})})
+        .then(function(r){return r.json();})
+        .then(function(r){completeLogin(r&&r.length?r[0]:Object.assign(perfil,{role:'admin',ativo:true}));})
+        .catch(function(){completeLogin(Object.assign(perfil,{role:'admin',ativo:true}));});
+        return;
       }
       completeLogin(perfil);
     } else {
-      // Auto-create perfil for first login
+      // No perfil exists - create one
+      console.log('[AUTH] No perfil found, creating...');
       var meta=currentUser.user_metadata||{};
       var nome=meta.nome||currentUser.email.split('@')[0];
-      var isAdmin=currentUser.email.toLowerCase()===ADMIN_EMAIL.toLowerCase();
-      var role=isAdmin?'admin':'visualizador';
-      var ativo=isAdmin?true:false;
-      fetch(API+'/perfis',{method:'POST',headers:H,body:JSON.stringify({id:currentUser.id,nome:nome,email:currentUser.email,role:role,ativo:ativo})}).then(function(r){return r.json();}).then(function(r){
+      var role=isAdminEmail?'admin':'visualizador';
+      var ativo=isAdminEmail?true:false;
+      var newPerfil={id:currentUser.id,nome:nome,email:currentUser.email,role:role,ativo:ativo};
+      console.log('[AUTH] Creating perfil:',newPerfil);
+      fetch(API+'/perfis',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(newPerfil)})
+      .then(function(r){
+        console.log('[AUTH] Create perfil status:',r.status);
+        return r.json();
+      })
+      .then(function(r){
+        console.log('[AUTH] Create perfil result:',r);
         if(r&&r.length){
-          if(!r[0].ativo){
+          if(!r[0].ativo&&!isAdminEmail){
             showToast('Conta criada! Aguarde aprova\u00e7\u00e3o do Admin.','alert');
-            doLogout();return;
+            sbClient.auth.signOut();
+            return;
           }
           completeLogin(r[0]);
+        } else if(isAdminEmail){
+          // Even if insert failed (RLS), force login as admin
+          console.log('[AUTH] Insert might have failed, forcing admin login');
+          completeLogin({id:currentUser.id,nome:nome,email:currentUser.email,role:'admin',ativo:true});
         } else {
-          // RLS might block - try fetching again
           showToast('Registrado! Aguarde aprova\u00e7\u00e3o do Admin.','alert');
-          doLogout();
+          sbClient.auth.signOut();
+        }
+      })
+      .catch(function(err){
+        console.error('[AUTH] Create perfil error:',err);
+        if(isAdminEmail){
+          completeLogin({id:currentUser.id,nome:meta.nome||'Admin',email:currentUser.email,role:'admin',ativo:true});
+        } else {
+          showToast('Erro ao criar perfil. Tente novamente.','error');
+          sbClient.auth.signOut();
         }
       });
+    }
+  })
+  .catch(function(err){
+    console.error('[AUTH] Fetch perfis error:',err);
+    if(isAdminEmail){
+      var meta=currentUser.user_metadata||{};
+      completeLogin({id:currentUser.id,nome:meta.nome||'Admin',email:currentUser.email,role:'admin',ativo:true});
+    } else {
+      showToast('Erro de conex\u00e3o. Tente novamente.','error');
+      sbClient.auth.signOut();
     }
   });
 }
 
 function completeLogin(perfil){
+  console.log('[AUTH] Login complete!',perfil.nome,'role:',perfil.role);
   currentRole=perfil.role||'visualizador';
   document.getElementById('loginOverlay').classList.add('hidden');
-
-  // Update header UI
   var initials=perfil.nome.split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase();
   document.getElementById('userName').textContent=perfil.nome.split(' ')[0];
   document.getElementById('userAvatar').textContent=initials;
   var badge=document.getElementById('userRoleBadge');
   badge.textContent=currentRole.charAt(0).toUpperCase()+currentRole.slice(1);
   badge.className='role-badge-sm '+currentRole;
-
   applyRoleAccess();
   loadDashboard();
+  showToast('Bem-vindo, '+perfil.nome.split(' ')[0]+'!','success');
 }
 
 function applyRoleAccess(){
   document.body.className='role-'+currentRole;
-  // Admin sees admin nav
   var adminNav=document.getElementById('navAdmin');
-  if(adminNav){adminNav.style.display=(currentRole==='admin')?'flex':'none';}
+  if(adminNav)adminNav.style.display=(currentRole==='admin')?'flex':'none';
 }
 
 function switchAuthTab(tab){
@@ -1050,11 +1015,21 @@ function doLogin(){
   var errEl=document.getElementById('authError');
   if(!email||!pw){errEl.textContent='Preencha email e senha';return;}
   errEl.textContent='';
-  document.getElementById('authBtn').disabled=true;
+  var btn=document.getElementById('authBtn');
+  btn.disabled=true;btn.textContent='Entrando...';
   sbClient.auth.signInWithPassword({email:email,password:pw}).then(function(res){
-    document.getElementById('authBtn').disabled=false;
-    if(res.error){errEl.textContent=res.error.message;return;}
+    btn.disabled=false;btn.textContent='Entrar';
+    if(res.error){
+      console.error('[AUTH] Login error:',res.error);
+      errEl.textContent=res.error.message==='Invalid login credentials'?'Email ou senha incorretos':res.error.message;
+      return;
+    }
+    console.log('[AUTH] Login success, handling session...');
     handleSession(res.data.session);
+  }).catch(function(err){
+    btn.disabled=false;btn.textContent='Entrar';
+    console.error('[AUTH] Login catch:',err);
+    errEl.textContent='Erro de conex\u00e3o';
   });
 }
 
@@ -1064,16 +1039,12 @@ function doRegister(){
   var pw=document.getElementById('regPassword').value;
   var errEl=document.getElementById('regError');
   if(!nome||!email||!pw){errEl.textContent='Preencha todos os campos';return;}
-  if(pw.length<6){errEl.textContent='Senha deve ter pelo menos 6 caracteres';return;}
+  if(pw.length<6){errEl.textContent='Senha: m\u00ednimo 6 caracteres';return;}
   errEl.textContent='';
   sbClient.auth.signUp({email:email,password:pw,options:{data:{nome:nome}}}).then(function(res){
     if(res.error){errEl.textContent=res.error.message;return;}
-    if(res.data&&res.data.session){
-      handleSession(res.data.session);
-    } else {
-      showToast('Conta criada! Verifique seu email ou aguarde aprova\u00e7\u00e3o.','success');
-      switchAuthTab('login');
-    }
+    if(res.data&&res.data.session){handleSession(res.data.session);}
+    else{showToast('Conta criada! Verifique seu email.','success');switchAuthTab('login');}
   });
 }
 
@@ -1087,110 +1058,52 @@ function doLogout(){
   });
 }
 
-// ============================================================
 // ADMIN: USER MANAGEMENT
-// ============================================================
-
 function renderAdminUsers(){
   if(currentRole!=='admin'){showToast('Acesso negado','error');return;}
-  var container=document.getElementById('usersTableContainer');
-  container.innerHTML='<p style="color:#999">Carregando usu\u00e1rios...</p>';
+  var c=document.getElementById('usersTableContainer');
+  c.innerHTML='<p style="color:#999">Carregando...</p>';
   apiGet('perfis','?order=created_at.desc').then(function(users){
-    if(!users||!users.length){container.innerHTML='<p style="color:#999">Nenhum usu\u00e1rio cadastrado.</p>';return;}
-    var roleColors={'admin':'#DA291C','lider':'#0097A9','analista':'#27AE60','visualizador':'#A7A8AA'};
-    var html='<table class="users-table"><thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Ativo</th><th>Criado em</th><th>A\u00e7\u00f5es</th></tr></thead><tbody>';
+    if(!users||!users.length||users.message){c.innerHTML='<p style="color:#999">Nenhum usu\u00e1rio. Verifique a tabela perfis.</p>';return;}
+    var html='<table class="users-table"><thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Ativo</th><th>Criado</th><th>A\u00e7\u00f5es</th></tr></thead><tbody>';
     users.forEach(function(u){
       var isMe=currentUser&&u.id===currentUser.id;
-      html+='<tr>';
-      html+='<td style="font-weight:600">'+u.nome+(isMe?' <span style="font-size:.7em;color:#999">(voc\u00ea)</span>':'')+'</td>';
+      html+='<tr><td style="font-weight:600">'+u.nome+(isMe?' <span style="font-size:.7em;color:#999">(voc\u00ea)</span>':'')+'</td>';
       html+='<td>'+u.email+'</td>';
-      html+='<td><select class="inline-select" onchange="changeUserRole(\''+u.id+'\',this.value)"'+(isMe?' disabled':'')+'>'+
-        '<option value="admin"'+(u.role==='admin'?' selected':'')+'>Admin</option>'+
-        '<option value="lider"'+(u.role==='lider'?' selected':'')+'>L\u00edder</option>'+
-        '<option value="analista"'+(u.role==='analista'?' selected':'')+'>Analista</option>'+
-        '<option value="visualizador"'+(u.role==='visualizador'?' selected':'')+'>Visualizador</option>'+
-        '</select></td>';
+      html+='<td><select class="inline-select" onchange="changeUserRole(\''+u.id+'\',this.value)"'+(isMe?' disabled':'')+'><option value="admin"'+(u.role==='admin'?' selected':'')+'>Admin</option><option value="lider"'+(u.role==='lider'?' selected':'')+'>L\u00edder</option><option value="analista"'+(u.role==='analista'?' selected':'')+'>Analista</option><option value="visualizador"'+(u.role==='visualizador'?' selected':'')+'>Visualizador</option></select></td>';
       html+='<td><label style="cursor:pointer"><input type="checkbox"'+(u.ativo?' checked':'')+' onchange="toggleUserActive(\''+u.id+'\',this.checked)"'+(isMe?' disabled':'')+' style="cursor:pointer"> '+(u.ativo?'Sim':'N\u00e3o')+'</label></td>';
       html+='<td style="font-size:.8em;color:#999">'+formatDate(u.created_at)+'</td>';
-      html+='<td>'+(isMe?'-':'<button class="btn btn-sm btn-danger" onclick="deleteUserAccount(\''+u.id+'\')">Excluir</button>')+'</td>';
-      html+='</tr>';
+      html+='<td>'+(isMe?'-':'<button class="btn btn-sm btn-danger" onclick="deleteUserAccount(\''+u.id+'\')">Excluir</button>')+'</td></tr>';
     });
-    html+='</tbody></table>';
-    html+='<p style="font-size:.78em;color:#999;margin-top:12px">Total: '+users.length+' usu\u00e1rio(s)</p>';
-    container.innerHTML=html;
-  }).catch(function(e){
-    container.innerHTML='<p style="color:#E74C3C">Erro ao carregar usu\u00e1rios. Verifique se a tabela "perfis" foi criada.</p>';
-  });
+    html+='</tbody></table><p style="font-size:.78em;color:#999;margin-top:12px">Total: '+users.length+' usu\u00e1rio(s)</p>';
+    c.innerHTML=html;
+  }).catch(function(){c.innerHTML='<p style="color:#E74C3C">Erro ao carregar. Verifique a tabela perfis.</p>';});
 }
-
-function changeUserRole(uid,role){
-  apiPatch('perfis',uid,{role:role}).then(function(){
-    showToast('Perfil atualizado!','success');
-    renderAdminUsers();
-  }).catch(function(){showToast('Erro ao atualizar perfil','error');});
-}
-
-function toggleUserActive(uid,active){
-  apiPatch('perfis',uid,{ativo:active}).then(function(){
-    showToast(active?'Usu\u00e1rio ativado!':'Usu\u00e1rio desativado!','success');
-    renderAdminUsers();
-  }).catch(function(){showToast('Erro ao atualizar','error');});
-}
-
-function deleteUserAccount(uid){
-  if(!confirm('Excluir este usu\u00e1rio permanentemente?'))return;
-  apiDelete('perfis',uid).then(function(ok){
-    if(ok){showToast('Usu\u00e1rio exclu\u00eddo!','success');renderAdminUsers();}
-    else showToast('Erro ao excluir','error');
-  });
-}
-
-function openNewUserModal(){
-  document.getElementById('nuNome').value='';
-  document.getElementById('nuEmail').value='';
-  document.getElementById('nuSenha').value='';
-  document.getElementById('nuRole').value='analista';
-  document.getElementById('nuAtivo').value='true';
-  document.getElementById('newUserModal').classList.add('show');
-}
-
+function changeUserRole(uid,role){apiPatch('perfis',uid,{role:role}).then(function(){showToast('Perfil atualizado!','success');renderAdminUsers();}).catch(function(){showToast('Erro','error');});}
+function toggleUserActive(uid,active){apiPatch('perfis',uid,{ativo:active}).then(function(){showToast(active?'Ativado!':'Desativado!','success');renderAdminUsers();}).catch(function(){showToast('Erro','error');});}
+function deleteUserAccount(uid){if(!confirm('Excluir permanentemente?'))return;apiDelete('perfis',uid).then(function(ok){if(ok){showToast('Exclu\u00eddo!','success');renderAdminUsers();}else showToast('Erro','error');});}
+function openNewUserModal(){document.getElementById('nuNome').value='';document.getElementById('nuEmail').value='';document.getElementById('nuSenha').value='';document.getElementById('nuRole').value='analista';document.getElementById('nuAtivo').value='true';document.getElementById('newUserModal').classList.add('show');}
 function createUser(){
   var nome=document.getElementById('nuNome').value.trim();
   var email=document.getElementById('nuEmail').value.trim();
   var senha=document.getElementById('nuSenha').value;
   var role=document.getElementById('nuRole').value;
   var ativo=document.getElementById('nuAtivo').value==='true';
-  if(!nome||!email||!senha){showToast('Preencha todos os campos','alert');return;}
-  if(senha.length<6){showToast('Senha deve ter pelo menos 6 caracteres','alert');return;}
-
+  if(!nome||!email||!senha){showToast('Preencha tudo','alert');return;}
+  if(senha.length<6){showToast('Senha: m\u00ednimo 6 chars','alert');return;}
   showLoading();
-  // Save current admin session
   sbClient.auth.getSession().then(function(res){
     var adminSession=res.data.session;
-    // Create new user
     sbClient.auth.signUp({email:email,password:senha,options:{data:{nome:nome}}}).then(function(signRes){
       if(signRes.error){hideLoading();showToast('Erro: '+signRes.error.message,'error');return;}
-      var newUserId=signRes.data.user?signRes.data.user.id:null;
-
-      // Restore admin session immediately
+      var newId=signRes.data.user?signRes.data.user.id:null;
       sbClient.auth.setSession({access_token:adminSession.access_token,refresh_token:adminSession.refresh_token}).then(function(){
-        H['Authorization']='Bearer '+adminSession.access_token;
-        HG['Authorization']='Bearer '+adminSession.access_token;
-
-        if(newUserId){
-          // Create/update perfil for new user
-          fetch(API+'/perfis',{method:'POST',headers:H,body:JSON.stringify({id:newUserId,nome:nome,email:email,role:role,ativo:ativo})}).then(function(){
-            hideLoading();
-            closeModal('newUserModal');
-            showToast('Usu\u00e1rio "'+nome+'" criado!','success');
-            renderAdminUsers();
+        H['Authorization']='Bearer '+adminSession.access_token;HG['Authorization']='Bearer '+adminSession.access_token;
+        if(newId){
+          fetch(API+'/perfis',{method:'POST',headers:H,body:JSON.stringify({id:newId,nome:nome,email:email,role:role,ativo:ativo})}).then(function(){
+            hideLoading();closeModal('newUserModal');showToast('"'+nome+'" criado!','success');renderAdminUsers();
           });
-        } else {
-          hideLoading();
-          closeModal('newUserModal');
-          showToast('Usu\u00e1rio criado! Verifique email de confirma\u00e7\u00e3o.','success');
-          renderAdminUsers();
-        }
+        } else {hideLoading();closeModal('newUserModal');showToast('Criado! Verifique email.','success');renderAdminUsers();}
       });
     });
   });
