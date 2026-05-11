@@ -407,7 +407,7 @@ function recalcProgress(pid){
 function renderFeedback(p){
   var tc=document.getElementById('tabContent');tc.innerHTML='<p style="color:#999">Carregando...</p>';
   apiGet('feedbacks','?projeto_id=eq.'+p.id+'&order=created_at.desc').then(function(fbs){
-    var list=fbs.map(function(f){return'<div class="fb-card-wrap" style="background:var(--light);border-radius:10px;padding:15px;margin-bottom:10px;position:relative"><button class="fb-delete-btn" onclick="event.stopPropagation();deleteFeedback('+f.id+','+p.id+')" title="Excluir">&times;</button><div style="display:flex;justify-content:space-between;margin-bottom:6px;padding-right:24px"><b>'kground:var(--light);border-radius:10px;padding:15px;margin-bottom:10px;position:relative"><button class="fb-delete-btn" onclick="event.stopPropagation();deleteFeedback('+f.id+','+p.id+')" title="Excluir">&times;</button><div style="display:flex;justify-content:space-between;margin-bottom:6px;padding-right:24px"><b>'+f.autor+'</b><span style="color:#999;font-size:.8em">'+formatDate(f.created_at)+'</span></div><div style="color:#F5842B;margin-bottom:6px">'+genStars(f.nota)+'</div><p style="color:#666;font-size:.88em">'+(f.comentario||'')+'</p></div>';}).join('');
+    var list=fbs.map(function(f){return'<div class="fb-card-wrap" style="background:var(--light);border-radius:10px;padding:15px;margin-bottom:10px;position:relative"><button class="fb-delete-btn" onclick="event.stopPropagation();deleteFeedback('+f.id+','+p.id+')" title="Excluir">&times;</button><div style="display:flex;justify-content:space-between;margin-bottom:6px;padding-right:24px"><b>'+f.autor+'</b><span style="color:#999;font-size:.8em">'+formatDate(f.created_at)+'</span></div><div style="color:#F5842B;margin-bottom:6px">'+genStars(f.nota)+'</div><p style="color:#666;font-size:.88em">'+(f.comentario||'')+'</p></div>';}).join('');
     tc.innerHTML=list+'<div style="background:var(--light);border-radius:12px;padding:20px;margin-top:20px"><h3 style="margin-bottom:12px">Novo Feedback</h3><div id="starRating" style="font-size:1.5em;color:#ddd;cursor:pointer;margin-bottom:12px"><span onmouseover="hoverStar(1)" onmouseout="resetStars()" onclick="setRating(1)">&#9734;</span><span onmouseover="hoverStar(2)" onmouseout="resetStars()" onclick="setRating(2)">&#9734;</span><span onmouseover="hoverStar(3)" onmouseout="resetStars()" onclick="setRating(3)">&#9734;</span><span onmouseover="hoverStar(4)" onmouseout="resetStars()" onclick="setRating(4)">&#9734;</span><span onmouseover="hoverStar(5)" onmouseout="resetStars()" onclick="setRating(5)">&#9734;</span></div><input type="text" id="fbAutor" placeholder="Seu nome" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px;font-family:inherit"><textarea id="fbText" placeholder="Coment\u00e1rio..." style="width:100%;height:80px;border:1px solid #ddd;border-radius:8px;padding:10px;font-family:inherit;resize:vertical"></textarea><button class="btn btn-primary" onclick="submitFeedback('+p.id+')" style="margin-top:10px">Enviar</button></div>';
   });
 }
@@ -428,7 +428,7 @@ function submitFeedback(pid){
 function renderDocuments(p){
   var tc=document.getElementById('tabContent');tc.innerHTML='<p style="color:#999">Carregando...</p>';
   apiGet('documentos','?projeto_id=eq.'+p.id+'&order=created_at.desc').then(function(docs){
-    var list=docs.map(function(d){return'<div class="doc-card" onclick="window.open(\''+d.url+'\',\'_blank\')"><div style="font-size:2em;margin-bottom:8px">'+(d.tipo||'DOC')+'</div><div style="font-weight:600;font-size:.85em">'+d.nome+'</div><div style="color:#999;font-size:.72em;margin-top:4px">'+formatDate(d.created_at)+'</div><div class="doc-actions"><button class="doc-btn doc-btn-rename" onclick="event.stopPropagation();renameDocument('+d.id+','+p.id+')">✎ Renomear</button><button class="doc-btn doc-btn-delete" onclick="event.stopPropagation();deleteDocument('+d.id+','+p.id+')">✕ Excluir</button></div></div>';}).join('');
+    var list=docs.map(function(d){return'<div class="doc-card" onclick="window.open(\''+d.url+'\',\'_blank\')"><div style="font-size:2em;margin-bottom:8px">'+(d.tipo||'DOC')+'</div><div style="font-weight:600;font-size:.85em">'+d.nome+'</div><div style="color:#999;font-size:.72em;margin-top:4px">'+formatDate(d.created_at)+'</div><div class="doc-actions"><button class="doc-btn doc-btn-rename" onclick="event.stopPropagation();renameDocument('+d.id+','+p.id+')">\u270E Renomear</button><button class="doc-btn doc-btn-delete" onclick="event.stopPropagation();deleteDocument('+d.id+','+p.id+')">\u2715 Excluir</button></div></div>';}).join('');
     tc.innerHTML='<div class="doc-grid">'+list+'</div><div style="margin-top:20px;padding:20px;background:var(--light);border-radius:12px;border:2px dashed #ccc;text-align:center"><input type="file" id="fileInput" style="display:none" onchange="uploadDocument('+p.id+')"><button class="btn btn-secondary" onclick="document.getElementById(\'fileInput\').click()">Fazer Upload</button><p style="color:#999;font-size:.82em;margin-top:8px">Clique para enviar documentos</p></div>';
   });
 }
@@ -543,7 +543,6 @@ function renderMetrics(){
       var pr=projetos.map(function(p){return p.progresso;});
       var co=projetos.map(function(p){return getStatusColor(p.status);});
       drawHorizontalBarChart('chartProgresso',nm,pr,co);
-renderGanhosMetrics();
 renderGanhosMetrics();
     },150);
   });
@@ -683,115 +682,119 @@ function confirmImport(){
 
 
 
-// ============ SPRINT 3: GANHOS DASHBOARD + FEEDBACK/DOC MANAGEMENT ============
+// ============================================================
+// SPRINT 3: GANHOS DASHBOARD + FEEDBACK/DOC MANAGEMENT
+// ============================================================
 
 function renderGanhosMetrics(){
   apiGet('ganhos','?select=*,projetos(titulo)').then(function(ganhos){
-    if(!ganhos||!ganhos.length){
-      document.getElementById('ganhosKPIs').innerHTML='<div class="ganho-kpi" style="border-color:#ccc;grid-column:1/-1"><h4>Sem dados</h4><div class="kpi-value" style="font-size:1em;color:#999">Nenhum ganho registrado ainda</div></div>';
-      document.getElementById('ganhosByType').innerHTML='<p style="color:#999;font-size:.85em">Sem dados</p>';
-      document.getElementById('top5Projects').innerHTML='<p style="color:#999;font-size:.85em">Sem dados</p>';
+    if(!ganhos||!ganhos.length||ganhos.message){
+      apiGet('ganhos','?order=id').then(function(g2){
+        if(!g2||!g2.length){
+          document.getElementById('ganhosKPIs').innerHTML='<div class="ganho-kpi" style="border-color:#ccc;grid-column:1/-1"><h4>Sem dados</h4><div class="kpi-value" style="font-size:1em;color:#999">Nenhum ganho registrado ainda</div></div>';
+          document.getElementById('ganhosByType').innerHTML='<p style="color:#999;font-size:.85em">Sem dados</p>';
+          document.getElementById('top5Projects').innerHTML='<p style="color:#999;font-size:.85em">Sem dados</p>';
+          return;
+        }
+        buildGanhosDashboard(g2);
+      });
       return;
     }
-    var totalEstimado=0,totalRealizado=0;
-    ganhos.forEach(function(g){
-      totalEstimado+=(parseFloat(g.valor_estimado)||0);
-      totalRealizado+=(parseFloat(g.valor_realizado)||0);
+    buildGanhosDashboard(ganhos);
+  }).catch(function(){
+    apiGet('ganhos','?order=id').then(function(g2){
+      if(g2&&g2.length)buildGanhosDashboard(g2);
+      else{
+        document.getElementById('ganhosKPIs').innerHTML='<div class="ganho-kpi" style="border-color:#ccc;grid-column:1/-1"><h4>Sem dados</h4><div class="kpi-value" style="font-size:1em;color:#999">Nenhum ganho registrado</div></div>';
+        document.getElementById('ganhosByType').innerHTML='<p style="color:#999;font-size:.85em">Sem dados</p>';
+        document.getElementById('top5Projects').innerHTML='<p style="color:#999;font-size:.85em">Sem dados</p>';
+      }
     });
-    var pctRealizacao=totalEstimado>0?Math.round((totalRealizado/totalEstimado)*100):0;
-    var fmt=function(v){return'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});};
-
-    // KPI Cards
-    document.getElementById('ganhosKPIs').innerHTML=
-      '<div class="ganho-kpi" style="border-color:#0097A9"><h4>Total Estimado</h4><div class="kpi-value">'+fmt(totalEstimado)+'</div><div class="kpi-sub">'+ganhos.length+' registros</div></div>'+
-      '<div class="ganho-kpi" style="border-color:#27AE60"><h4>Total Realizado</h4><div class="kpi-value" style="color:#27AE60">'+fmt(totalRealizado)+'</div><div class="kpi-sub">'+(totalRealizado>=totalEstimado?'\u2705 Meta atingida':'\u26A0\uFE0F '+(100-pctRealizacao)+'% restante')+'</div></div>'+
-      '<div class="ganho-kpi" style="border-color:#F5842B"><h4>% Realização</h4><div class="kpi-value" style="color:#F5842B">'+pctRealizacao+'%</div><div class="kpi-sub"><div style="background:#f0f0f0;border-radius:6px;height:6px;margin-top:6px"><div style="background:#F5842B;height:100%;border-radius:6px;width:'+Math.min(pctRealizacao,100)+'%"></div></div></div></div>'+
-      '<div class="ganho-kpi" style="border-color:#DA291C"><h4>Total Registros</h4><div class="kpi-value">'+ganhos.length+'</div><div class="kpi-sub">ganhos cadastrados</div></div>';
-
-    // Ganhos por Tipo - colored bars
-    var tipoColors={'Ganho Real':'#27AE60','Custo Evitado':'#0097A9','Produtividade':'#F5842B','Receita Incremental':'#DA291C','Compliance':'#9B59B6','Outro':'#A7A8AA'};
-    var byType={};
-    ganhos.forEach(function(g){
-      var t=g.tipo||'Outro';
-      if(!byType[t])byType[t]={estimado:0,realizado:0,count:0};
-      byType[t].estimado+=(parseFloat(g.valor_estimado)||0);
-      byType[t].realizado+=(parseFloat(g.valor_realizado)||0);
-      byType[t].count++;
-    });
-    var maxVal=Math.max.apply(null,Object.values(byType).map(function(v){return Math.max(v.estimado,v.realizado);}));
-    if(maxVal===0)maxVal=1;
-    var barsHtml='';
-    Object.keys(byType).forEach(function(tipo){
-      var d=byType[tipo];
-      var pct=maxVal>0?Math.round((d.realizado/maxVal)*100):0;
-      var color=tipoColors[tipo]||'#A7A8AA';
-      barsHtml+='<div class="ganho-bar-container">';
-      barsHtml+='<div class="ganho-bar-label"><span>'+tipo+' ('+d.count+')</span><span>'+fmt(d.realizado)+' / '+fmt(d.estimado)+'</span></div>';
-      barsHtml+='<div class="ganho-bar-track"><div class="ganho-bar-fill" style="width:'+Math.max(pct,3)+'%;background:'+color+'">'+pct+'%</div></div>';
-      barsHtml+='</div>';
-    });
-    document.getElementById('ganhosByType').innerHTML=barsHtml;
-
-    // Top 5 Projetos por Valor
-    var byProject={};
-    ganhos.forEach(function(g){
-      var pid=g.projeto_id;
-      var pname=(g.projetos&&g.projetos.titulo)?g.projetos.titulo:('Projeto #'+pid);
-      if(!byProject[pid])byProject[pid]={nome:pname,estimado:0,realizado:0};
-      byProject[pid].estimado+=(parseFloat(g.valor_estimado)||0);
-      byProject[pid].realizado+=(parseFloat(g.valor_realizado)||0);
-    });
-    var sorted=Object.values(byProject).sort(function(a,b){return b.estimado-a.estimado;}).slice(0,5);
-    var rankColors=['#DA291C','#F5842B','#0097A9','#27AE60','#A7A8AA'];
-    var topMax=sorted.length>0?sorted[0].estimado:1;
-    if(topMax===0)topMax=1;
-    var topHtml='<table class="top5-table"><thead><tr><th>#</th><th>Projeto</th><th>Estimado</th><th>Realizado</th><th style="width:30%">Progresso</th></tr></thead><tbody>';
-    sorted.forEach(function(p,i){
-      var barPct=p.estimado>0?Math.round((p.realizado/p.estimado)*100):0;
-      topHtml+='<tr><td><span class="rank-badge" style="background:'+rankColors[i]+'">'+(i+1)+'</span></td><td style="font-weight:600">'+p.nome+'</td><td>'+fmt(p.estimado)+'</td><td>'+fmt(p.realizado)+'</td><td><div style="background:#f0f0f0;border-radius:6px;height:8px"><div style="background:'+rankColors[i]+';height:100%;border-radius:6px;width:'+Math.min(barPct,100)+'%;transition:width .5s"></div></div><span style="font-size:.72em;color:#888">'+barPct+'%</span></td></tr>';
-    });
-    topHtml+='</tbody></table>';
-    document.getElementById('top5Projects').innerHTML=sorted.length?topHtml:'<p style="color:#999;font-size:.85em">Sem projetos com ganhos</p>';
-  }).catch(function(err){
-    console.error('Erro ao carregar ganhos:',err);
-    document.getElementById('ganhosKPIs').innerHTML='<div class="ganho-kpi" style="border-color:#E74C3C"><h4>Erro</h4><div class="kpi-value" style="font-size:.9em;color:#E74C3C">Falha ao carregar</div></div>';
   });
+}
+
+function buildGanhosDashboard(ganhos){
+  var totalEstimado=0,totalRealizado=0;
+  ganhos.forEach(function(g){
+    totalEstimado+=(parseFloat(g.valor_estimado)||0);
+    totalRealizado+=(parseFloat(g.valor_realizado)||0);
+  });
+  var pctRealizacao=totalEstimado>0?Math.round((totalRealizado/totalEstimado)*100):0;
+  var fmt=function(v){return'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});};
+
+  var subReal=totalRealizado>=totalEstimado?'\u2705 Meta atingida':'\u26A0\uFE0F '+(100-pctRealizacao)+'% restante';
+  document.getElementById('ganhosKPIs').innerHTML=
+    '<div class="ganho-kpi" style="border-color:#0097A9"><h4>Total Estimado</h4><div class="kpi-value">'+fmt(totalEstimado)+'</div><div class="kpi-sub">'+ganhos.length+' registros</div></div>'+
+    '<div class="ganho-kpi" style="border-color:#27AE60"><h4>Total Realizado</h4><div class="kpi-value" style="color:#27AE60">'+fmt(totalRealizado)+'</div><div class="kpi-sub">'+subReal+'</div></div>'+
+    '<div class="ganho-kpi" style="border-color:#F5842B"><h4>% Realiza\u00e7\u00e3o</h4><div class="kpi-value" style="color:#F5842B">'+pctRealizacao+'%</div><div class="kpi-sub"><div style="background:#f0f0f0;border-radius:6px;height:6px;margin-top:6px"><div style="background:#F5842B;height:100%;border-radius:6px;width:'+Math.min(pctRealizacao,100)+'%"></div></div></div></div>'+
+    '<div class="ganho-kpi" style="border-color:#DA291C"><h4>Total Registros</h4><div class="kpi-value">'+ganhos.length+'</div><div class="kpi-sub">ganhos cadastrados</div></div>';
+
+  var tipoColors={'Ganho Real':'#27AE60','Custo Evitado':'#0097A9','Produtividade':'#F5842B','Receita Incremental':'#DA291C','Compliance':'#9B59B6','Outro':'#A7A8AA'};
+  var byType={};
+  ganhos.forEach(function(g){
+    var t=g.tipo||'Outro';
+    if(!byType[t])byType[t]={estimado:0,realizado:0,count:0};
+    byType[t].estimado+=(parseFloat(g.valor_estimado)||0);
+    byType[t].realizado+=(parseFloat(g.valor_realizado)||0);
+    byType[t].count++;
+  });
+  var maxVal=0;
+  Object.keys(byType).forEach(function(k){var v=byType[k];if(v.estimado>maxVal)maxVal=v.estimado;if(v.realizado>maxVal)maxVal=v.realizado;});
+  if(maxVal===0)maxVal=1;
+  var barsHtml='';
+  Object.keys(byType).forEach(function(tipo){
+    var d=byType[tipo];
+    var pct=maxVal>0?Math.round((d.realizado/maxVal)*100):0;
+    var color=tipoColors[tipo]||'#A7A8AA';
+    barsHtml+='<div class="ganho-bar-container">';
+    barsHtml+='<div class="ganho-bar-label"><span>'+tipo+' ('+d.count+')</span><span>'+fmt(d.realizado)+' / '+fmt(d.estimado)+'</span></div>';
+    barsHtml+='<div class="ganho-bar-track"><div class="ganho-bar-fill" style="width:'+Math.max(pct,3)+'%;background:'+color+'">'+pct+'%</div></div>';
+    barsHtml+='</div>';
+  });
+  document.getElementById('ganhosByType').innerHTML=barsHtml||'<p style="color:#999;font-size:.85em">Sem dados por tipo</p>';
+
+  var byProject={};
+  ganhos.forEach(function(g){
+    var pid=g.projeto_id;
+    var pname=(g.projetos&&g.projetos.titulo)?g.projetos.titulo:null;
+    if(!pname){var found=projetos.find(function(x){return x.id===pid;});pname=found?found.titulo:('Projeto #'+pid);}
+    if(!byProject[pid])byProject[pid]={nome:pname,estimado:0,realizado:0};
+    byProject[pid].estimado+=(parseFloat(g.valor_estimado)||0);
+    byProject[pid].realizado+=(parseFloat(g.valor_realizado)||0);
+  });
+  var sorted=Object.values(byProject).sort(function(a,b){return b.estimado-a.estimado;}).slice(0,5);
+  var rankColors=['#DA291C','#F5842B','#0097A9','#27AE60','#A7A8AA'];
+  var topHtml='<table class="top5-table"><thead><tr><th>#</th><th>Projeto</th><th>Estimado</th><th>Realizado</th><th style="width:30%">Progresso</th></tr></thead><tbody>';
+  sorted.forEach(function(p,i){
+    var barPct=p.estimado>0?Math.round((p.realizado/p.estimado)*100):0;
+    topHtml+='<tr><td><span class="rank-badge" style="background:'+rankColors[i%5]+'">'+(i+1)+'</span></td><td style="font-weight:600">'+p.nome+'</td><td>'+fmt(p.estimado)+'</td><td>'+fmt(p.realizado)+'</td><td><div style="background:#f0f0f0;border-radius:6px;height:8px"><div style="background:'+rankColors[i%5]+';height:100%;border-radius:6px;width:'+Math.min(barPct,100)+'%;transition:width .5s"></div></div><span style="font-size:.72em;color:#888">'+barPct+'%</span></td></tr>';
+  });
+  topHtml+='</tbody></table>';
+  document.getElementById('top5Projects').innerHTML=sorted.length?topHtml:'<p style="color:#999;font-size:.85em">Sem projetos com ganhos</p>';
 }
 
 function deleteFeedback(fid,pid){
   if(!confirm('Excluir este feedback?'))return;
-  apiDelete('feedbacks','?id=eq.'+fid).then(function(){
-    showToast('Feedback excluído');
-    var p=projetos.find(function(x){return x.id===pid;});
-    if(p)renderFeedback(p);
-  }).catch(function(e){showToast('Erro ao excluir feedback: '+e.message);});
+  apiDelete('feedbacks',fid).then(function(ok){
+    if(ok){showToast('Feedback exclu\u00eddo!');var p=projetos.find(function(x){return x.id===pid;});if(p)renderFeedback(p);}
+    else showToast('Erro ao excluir feedback');
+  });
 }
 
 function deleteDocument(docId,pid){
   if(!confirm('Excluir este documento?'))return;
-  apiDelete('documentos','?id=eq.'+docId).then(function(){
-    showToast('Documento excluído');
-    var p=projetos.find(function(x){return x.id===pid;});
-    if(p)renderDocuments(p);
-  }).catch(function(e){showToast('Erro ao excluir documento: '+e.message);});
+  apiDelete('documentos',docId).then(function(ok){
+    if(ok){showToast('Documento exclu\u00eddo!');var p=projetos.find(function(x){return x.id===pid;});if(p)renderDocuments(p);}
+    else showToast('Erro ao excluir documento');
+  });
 }
 
 function renameDocument(docId,pid){
   var newName=prompt('Novo nome do documento:');
   if(!newName||!newName.trim())return;
-  apiPatch('documentos','?id=eq.'+docId,{nome:newName.trim()}).then(function(){
-    showToast('Documento renomeado');
-    var p=projetos.find(function(x){return x.id===pid;});
-    if(p)renderDocuments(p);
-  }).catch(function(e){showToast('Erro ao renomear: '+e.message);});
-}
-
-function apiDelete(table,query){
-  return fetch(SUPABASE_URL+'/rest/v1/'+table+query,{method:'DELETE',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'}}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);});
-}
-
-function apiPatch(table,query,data){
-  return fetch(SUPABASE_URL+'/rest/v1/'+table+query,{method:'PATCH',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(data)}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);});
+  apiPatch('documentos',docId,{nome:newName.trim()}).then(function(r){
+    showToast('Documento renomeado!');var p=projetos.find(function(x){return x.id===pid;});if(p)renderDocuments(p);
+  }).catch(function(){showToast('Erro ao renomear');});
 }
 
 // INIT
