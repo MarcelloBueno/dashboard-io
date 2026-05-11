@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>ETN IO - Gestao de Projetos v2.0</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--primary:#DA291C;--blue:#0097A9;--orange:#F5842B;--green:#27AE60;--dark:#2D291C;--gray:#A7A8AA;--light:#F4F6F8;--white:#fff}
@@ -84,14 +85,14 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 .ab:hover{background:#ddd}.ab.del:hover{background:#fce4ec;color:#E74C3C}
 .inline-input{padding:4px 8px;border:1px solid #ccc;border-radius:4px;font-size:.84em;font-family:inherit;width:100%}
 .inline-select{padding:4px 8px;border:1px solid #ccc;border-radius:4px;font-size:.84em;font-family:inherit}
-/* old toast css removed - see Sprint 4 */
+/* old toast removed */
 .toast.show{opacity:1;transform:translateY(0)}
 .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:50;justify-content:center;align-items:center}
 .modal-overlay.show{display:flex}
 .modal{background:var(--white);border-radius:14px;padding:28px;width:90%;max-width:550px;box-shadow:0 12px 40px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto}
 .modal h3{margin-bottom:16px;color:var(--dark)}
 .edit-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-/* old @media removed - see Sprint 4 */
+/* old media removed */
 
 /* ========== SPRINT 3 STYLES ========== */
 .ganho-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px}
@@ -101,24 +102,19 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 .ganho-kpi .kpi-sub{font-size:.72em;color:#999;margin-top:4px}
 .ganho-bar-container{margin-bottom:14px}
 .ganho-bar-label{display:flex;justify-content:space-between;font-size:.85em;margin-bottom:4px;font-weight:500}
-.ganho-bar-track{height:24px;background:#f0f0f0;border-radius:12px;overflow:hidden;position:relative}
-.ganho-bar-fill{height:100%;border-radius:12px;transition:width .6s ease;display:flex;align-items:center;padding-left:10px;color:#fff;font-size:.72em;font-weight:600;min-width:fit-content}
+.ganho-bar-track{height:24px;background:#f0f0f0;border-radius:12px;overflow:hidden}
+.ganho-bar-fill{height:100%;border-radius:12px;transition:width .6s;display:flex;align-items:center;padding-left:10px;color:#fff;font-size:.72em;font-weight:600;min-width:fit-content}
 .top5-table{width:100%;border-collapse:collapse;font-size:.88em}
 .top5-table th{background:var(--dark);color:#fff;padding:10px 14px;text-align:left;font-weight:600}
-.top5-table th:first-child{border-radius:8px 0 0 0}
-.top5-table th:last-child{border-radius:0 8px 0 0}
-.top5-table td{padding:10px 14px;border-bottom:1px solid #eee}
-.top5-table tr:hover{background:var(--light)}
+.top5-table th:first-child{border-radius:8px 0 0 0}.top5-table th:last-child{border-radius:0 8px 0 0}
+.top5-table td{padding:10px 14px;border-bottom:1px solid #eee}.top5-table tr:hover{background:var(--light)}
 .rank-badge{width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:.85em;color:#fff}
 .doc-actions{display:flex;gap:6px;margin-top:8px;justify-content:center}
 .doc-btn{padding:4px 10px;border:none;border-radius:4px;cursor:pointer;font-size:.72em;font-family:inherit;transition:.2s}
-.doc-btn:hover{opacity:.8}
-.doc-btn-rename{background:#0097A9;color:#fff}
-.doc-btn-delete{background:#E74C3C;color:#fff}
+.doc-btn:hover{opacity:.8}.doc-btn-rename{background:#0097A9;color:#fff}.doc-btn-delete{background:#E74C3C;color:#fff}
 .fb-card-wrap{position:relative}
 .fb-delete-btn{position:absolute;top:8px;right:10px;background:none;border:none;color:#ccc;font-size:1.1em;cursor:pointer;transition:.2s;padding:2px 6px;border-radius:4px}
 .fb-delete-btn:hover{color:#E74C3C;background:rgba(231,76,60,.08)}
-
 /* ========== SPRINT 4 STYLES ========== */
 .spinner-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,.55);z-index:200;justify-content:center;align-items:center}
 .spinner-overlay.show{display:flex}
@@ -126,37 +122,83 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 @keyframes spin{to{transform:rotate(360deg)}}
 .toast{position:fixed;bottom:30px;right:30px;padding:14px 24px;border-radius:10px;font-size:.88em;opacity:0;transform:translateY(20px);transition:.3s;z-index:100;pointer-events:none;display:flex;align-items:center;gap:10px;max-width:420px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
 .toast.show{opacity:1;transform:translateY(0);pointer-events:auto}
-.toast.success{background:#27AE60;color:#fff}
-.toast.error{background:#E74C3C;color:#fff}
-.toast.alert{background:#F5842B;color:#fff}
-.toast.info{background:var(--dark);color:#fff}
-.toast .undo-btn{background:rgba(255,255,255,.25);color:#fff;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.82em;font-weight:600;font-family:inherit;white-space:nowrap}
+.toast.success{background:#27AE60;color:#fff}.toast.error{background:#E74C3C;color:#fff}.toast.alert{background:#F5842B;color:#fff}.toast.info{background:var(--dark);color:#fff}
+.toast .undo-btn{background:rgba(255,255,255,.25);color:#fff;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:.82em;font-weight:600;font-family:inherit}
 .toast .undo-btn:hover{background:rgba(255,255,255,.4)}
 .breadcrumbs{padding:8px 28px;background:var(--white);border-bottom:1px solid #eee;font-size:.82em;color:#999;display:flex;align-items:center;gap:6px}
-.breadcrumbs a{color:var(--blue);text-decoration:none;cursor:pointer}
-.breadcrumbs a:hover{text-decoration:underline}
+.breadcrumbs a{color:var(--blue);text-decoration:none;cursor:pointer}.breadcrumbs a:hover{text-decoration:underline}
 .breadcrumbs .sep{color:#ccc}
 .hamburger{display:none;background:none;border:none;font-size:1.4em;cursor:pointer;color:var(--dark);padding:4px 8px}
+/* ========== SPRINT 5 STYLES ========== */
+.login-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#2D291C 0%,#DA291C 100%);z-index:500;display:flex;justify-content:center;align-items:center}
+.login-overlay.hidden{display:none}
+.login-box{background:#fff;border-radius:16px;padding:40px;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
+.login-box .logo-area{margin-bottom:24px}
+.login-box .logo-area h2{color:var(--primary);font-size:1.4em;margin-bottom:4px}
+.login-box .logo-area p{color:#999;font-size:.82em}
+.login-box .form-group{text-align:left;margin-bottom:14px}
+.login-box .tab-switch{display:flex;gap:0;margin-bottom:24px;border-radius:8px;overflow:hidden;border:1px solid #ddd}
+.login-box .tab-switch button{flex:1;padding:10px;border:none;background:var(--light);color:#666;cursor:pointer;font-family:inherit;font-size:.88em;font-weight:600;transition:.2s}
+.login-box .tab-switch button.active{background:var(--primary);color:#fff}
+.login-box .login-btn{width:100%;padding:12px;border:none;border-radius:8px;background:var(--primary);color:#fff;font-size:.95em;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s}
+.login-box .login-btn:hover{background:#b8221a}
+.login-box .login-btn:disabled{opacity:.6;cursor:not-allowed}
+.login-error{color:#E74C3C;font-size:.82em;margin-top:8px;min-height:1.2em}
+.role-badge-sm{display:inline-block;padding:2px 8px;border-radius:8px;font-size:.68em;font-weight:600;color:#fff;margin-left:6px}
+.role-badge-sm.admin{background:var(--primary)}.role-badge-sm.lider{background:var(--blue)}.role-badge-sm.analista{background:var(--green)}.role-badge-sm.visualizador{background:var(--gray)}
+.user-menu{display:flex;align-items:center;gap:10px;font-size:.88em;font-weight:600;color:var(--dark)}
+.user-menu .logout-btn{background:none;border:1px solid #ddd;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.78em;color:#999;transition:.2s;font-family:inherit}
+.user-menu .logout-btn:hover{border-color:var(--primary);color:var(--primary)}
+.users-table{width:100%;border-collapse:collapse;font-size:.86em}
+.users-table th{background:var(--dark);color:#fff;padding:10px 14px;text-align:left;font-weight:600}
+.users-table td{padding:10px 14px;border-bottom:1px solid #eee}
+.users-table tr:hover{background:var(--light)}
+body.role-visualizador .hide-viewer{display:none!important}
+body.role-analista .hide-analista{display:none!important}
+body.role-admin .show-admin-only{display:flex!important}
+.show-admin-only{display:none!important}
 @media(max-width:768px){
   .sidebar{width:0;transform:translateX(-200px);transition:transform .3s}
   .sidebar.open{width:200px;transform:translateX(0)}
   .sidebar .logo,.sidebar .sub,.sidebar nav a span{display:block}
   .main{margin-left:0!important}
   .hamburger{display:block}
-  .cards{grid-template-columns:1fr}
-  .edit-row{grid-template-columns:1fr}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .ganho-summary{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}.edit-row{grid-template-columns:1fr}
+  .stats,.ganho-summary{grid-template-columns:repeat(2,1fr)}
   .info-grid{grid-template-columns:1fr}
   .detail-header{flex-direction:column;text-align:center}
   .tabs{justify-content:center}
   .breadcrumbs{padding:8px 16px;font-size:.76em}
   .content{padding:16px}
+  .login-box{padding:28px 20px}
 }
 
 </style>
 </head>
 <body>
+<div class="login-overlay" id="loginOverlay">
+<div class="login-box">
+<div class="logo-area"><h2>ETN Soluções</h2><p>IO – Inteligência Operacional</p></div>
+<div class="tab-switch" id="authTabs">
+<button class="active" onclick="switchAuthTab('login')">Entrar</button>
+<button onclick="switchAuthTab('register')">Registrar</button>
+</div>
+<div id="loginForm">
+<div class="form-group"><label>Email</label><input type="email" id="authEmail" placeholder="seu.email@claro.com.br"></div>
+<div class="form-group"><label>Senha</label><input type="password" id="authPassword" placeholder="Mínimo 6 caracteres"></div>
+<button class="login-btn" id="authBtn" onclick="doLogin()">Entrar</button>
+<div class="login-error" id="authError"></div>
+</div>
+<div id="registerForm" style="display:none">
+<div class="form-group"><label>Nome completo</label><input type="text" id="regNome" placeholder="Seu nome"></div>
+<div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="seu.email@claro.com.br"></div>
+<div class="form-group"><label>Senha</label><input type="password" id="regPassword" placeholder="Mínimo 6 caracteres"></div>
+<button class="login-btn" onclick="doRegister()">Criar Conta</button>
+<div class="login-error" id="regError"></div>
+<p style="font-size:.78em;color:#999;margin-top:10px">Após registro, um Admin precisa aprovar seu acesso.</p>
+</div>
+</div>
+</div>
 <div class="spinner-overlay" id="loadingSpinner"><div class="spinner"></div></div>
 
 
@@ -166,13 +208,14 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 <nav>
 <a class="active" onclick="navigateTo('dashboard',this)"><span>≡ Dashboard</span></a>
 <a onclick="navigateTo('metricas',this)"><span>☆ Métricas</span></a>
-<a onclick="navigateTo('novo',this)"><span>+ Novo Projeto</span></a>
+<a id="navNovo" class="hide-viewer" onclick="navigateTo('novo',this)"><span>+ Novo Projeto</span></a>
+<a class="show-admin-only" id="navAdmin" onclick="navigateTo('admin',this)"><span>⚙ Usuários</span></a>
 </nav>
 </div>
 <div class="main">
 <div class="header">
 <div style="display:flex;align-items:center;gap:10px"><button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()">☰</button><h1 id="pageTitle">Dashboard de Projetos</h1></div>
-<div class="user"><span>Marcello Kaio</span><div class="avatar">MK</div></div>
+<div class="user-menu" id="userMenu"><span id="userName">—</span><span class="role-badge-sm" id="userRoleBadge"></span><div class="avatar" id="userAvatar">—</div><button class="logout-btn" onclick="doLogout()">Sair</button></div>
 </div>
 <div class="breadcrumbs" id="breadcrumbs"><a onclick="navigateTo('dashboard',document.querySelector('.sidebar nav a'))">Dashboard</a></div>
 <div class="content">
@@ -231,11 +274,21 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 <div class="edit-row"><div class="form-group"><label>Categoria</label><select id="fCat"><option>Data Analytics</option><option>Soluções</option><option>Automação</option><option>Capacitação</option></select></div><div class="form-group"><label>Prioridade</label><select id="fPri"><option>Alta</option><option selected>Média</option><option>Baixa</option></select></div><div class="form-group"><label>Status Inicial</label><select id="fStatusInicial"><option value="Planejamento">Planejamento</option><option value="Ativo">Ativo</option><option value="Pausado">Pausado</option></select></div></div>
 <div class="edit-row"><div class="form-group"><label>Início</label><input type="date" id="fInicio"></div><div class="form-group"><label>Fim</label><input type="date" id="fFim"></div></div>
 <div class="form-group"><label>Orçamento</label><input type="text" id="fOrc" placeholder="Ex: R$ 5.000 ou Interno"></div>
-<div class="form-group"><label>Meta / Objetivo</label><textarea id="fMeta" rows="2" placeholder="Descreva a meta principal do projeto..."></textarea></div>
+<div class="form-group"><label>Meta / Objetivo</label><textarea id="fMeta" rows="2" placeholder="Descreva a meta principal..."></textarea></div>
 <div class="form-group"><label>Observações</label><textarea id="fObs" rows="2" placeholder="Observações gerais..."></textarea></div>
 <button class="btn btn-primary" onclick="createProject()">Criar Projeto</button>
 </div></div>
 </div></div>
+<div id="pageAdmin" class="page">
+<div style="background:#fff;border-radius:12px;padding:28px;box-shadow:0 2px 8px rgba(0,0,0,.05)">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+<h2 style="color:var(--dark)">Gestão de Usuários</h2>
+<button class="btn btn-primary" onclick="openNewUserModal()">+ Novo Usuário</button>
+</div>
+<div id="usersTableContainer"><p style="color:#999">Carregando...</p></div>
+</div>
+</div>
+
 
 <div id="editModal" class="modal-overlay"><div class="modal">
 <h3>Editar Projeto</h3>
@@ -267,6 +320,17 @@ td{padding:8px 12px;border-bottom:1px solid #eee}
 <button class="btn btn-primary" onclick="confirmImport()">Confirmar</button>
 <button class="btn btn-back" onclick="closeModal('importModal')">Cancelar</button>
 </div>
+
+<div id="newUserModal" class="modal-overlay"><div class="modal">
+<h3>Novo Usuário</h3>
+<div class="form-group"><label>Nome</label><input type="text" id="nuNome"></div>
+<div class="form-group"><label>Email</label><input type="email" id="nuEmail"></div>
+<div class="form-group"><label>Senha inicial</label><input type="password" id="nuSenha" value="" placeholder="Mínimo 6 caracteres"></div>
+<div class="form-group"><label>Perfil</label><select id="nuRole"><option value="analista">Analista / Líder</option><option value="visualizador">Visualizador</option><option value="admin">Admin</option></select></div>
+<div class="form-group"><label>Ativo?</label><select id="nuAtivo"><option value="true">Sim</option><option value="false">Não</option></select></div>
+<div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-primary" onclick="createUser()">Criar</button><button class="btn btn-back" onclick="closeModal('newUserModal')">Cancelar</button></div>
+</div></div>
+
 </div></div>
 <div id="toast" class="toast"></div>
 
@@ -292,13 +356,8 @@ function showToast(m,type,undoFn){
   var t=document.getElementById('toast');
   t.className='toast '+(type||'info');
   t.innerHTML='<span>'+m+'</span>';
-  if(undoFn){
-    var btn=document.createElement('button');btn.className='undo-btn';btn.textContent='Desfazer';
-    btn.onclick=function(){clearTimeout(t._timer);t.classList.remove('show');undoFn();};
-    t.appendChild(btn);
-  }
-  t.classList.add('show');
-  clearTimeout(t._timer);
+  if(undoFn){var btn=document.createElement('button');btn.className='undo-btn';btn.textContent='Desfazer';btn.onclick=function(){clearTimeout(t._timer);t.classList.remove('show');undoFn();};t.appendChild(btn);}
+  t.classList.add('show');clearTimeout(t._timer);
   t._timer=setTimeout(function(){t.classList.remove('show');},undoFn?5000:3000);
 }
 function formatCurrency(v){if(!v&&v!==0)return'R$ 0,00';return'R$ '+parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
@@ -307,13 +366,14 @@ function navigateTo(page,el){
   document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
   document.querySelectorAll('.sidebar nav a').forEach(function(a){a.classList.remove('active');});
   if(el)el.classList.add('active');
-  var titles={'dashboard':'Dashboard de Projetos','metricas':'M\u00e9tricas do Portf\u00f3lio','novo':'Novo Projeto','detalhes':'Detalhes do Projeto'};
+  var titles={'dashboard':'Dashboard de Projetos','metricas':'M\u00e9tricas do Portf\u00f3lio','novo':'Novo Projeto','detalhes':'Detalhes do Projeto','admin':'Gest\u00e3o de Usu\u00e1rios'};
   document.getElementById('pageTitle').textContent=titles[page]||'Dashboard';
-  var pages={'dashboard':'pageDashboard','metricas':'pageMetricas','novo':'pageNovo','detalhes':'pageDetalhes'};
+  var pages={'dashboard':'pageDashboard','metricas':'pageMetricas','novo':'pageNovo','detalhes':'pageDetalhes','admin':'pageAdmin'};
   var tgt=document.getElementById(pages[page]);if(tgt)tgt.classList.add('active');
   if(page==='dashboard'){loadDashboard();updateBreadcrumbs([{label:'Dashboard'}]);}
   if(page==='metricas'){renderMetrics();updateBreadcrumbs([{label:'Dashboard',link:true},{label:'M\u00e9tricas'}]);}
   if(page==='novo')updateBreadcrumbs([{label:'Dashboard',link:true},{label:'Novo Projeto'}]);
+  if(page==='admin'){renderAdminUsers();updateBreadcrumbs([{label:'Dashboard',link:true},{label:'Usu\u00e1rios'}]);}
 }
 
 function loadDashboard(){
@@ -357,9 +417,8 @@ function openEditModal(){var p=currentProject;document.getElementById('eTitulo')
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 function saveProject(){var d={titulo:document.getElementById('eTitulo').value,descricao:document.getElementById('eDesc').value,responsavel:document.getElementById('eResp').value,status:document.getElementById('eStatus').value,progresso:parseInt(document.getElementById('eProgresso').value)||0,prioridade:document.getElementById('ePri').value,categoria:document.getElementById('eCat').value,orcamento:document.getElementById('eOrc').value,data_inicio:document.getElementById('eInicio').value||null,data_fim:document.getElementById('eFim').value||null,updated_at:new Date().toISOString()};apiPatch('projetos',currentProject.id,d).then(function(r){if(r&&r.length){currentProject=r[0];var idx=projetos.findIndex(function(p){return p.id===currentProject.id;});if(idx>=0)projetos[idx]=currentProject;renderDetailHeader(currentProject);closeModal('editModal');showToast('Projeto atualizado!','success');apiPost('historico',{projeto_id:currentProject.id,texto:'Projeto editado: '+d.status+' ('+d.progresso+'%)',tipo:'atualizacao'});}}).catch(function(){showToast('Erro ao salvar','error');});}
 function deleteProject(){
-  var delP=Object.assign({},currentProject);
-  if(!confirm('Excluir o projeto "'+delP.titulo+'"?'))return;
-  apiDelete('projetos',delP.id).then(function(ok){if(ok){showToast('Projeto exclu\u00eddo!','success',function(){apiPost('projetos',{titulo:delP.titulo,descricao:delP.descricao,responsavel:delP.responsavel,categoria:delP.categoria,prioridade:delP.prioridade,status:delP.status,progresso:delP.progresso,data_inicio:delP.data_inicio,data_fim:delP.data_fim,orcamento:delP.orcamento}).then(function(){showToast('Projeto restaurado!','success');loadDashboard();});});navigateTo('dashboard',document.querySelector('.sidebar nav a'));}else showToast('Erro ao excluir','error');});
+  if(!confirm('Excluir o projeto "'+currentProject.titulo+'"?'))return;
+  apiDelete('projetos',currentProject.id).then(function(ok){if(ok){showToast('Projeto exclu\u00eddo!','success');navigateTo('dashboard',document.querySelector('.sidebar nav a'));}else showToast('Erro ao excluir','error');});
 }
 function renderOverview(p){
   document.getElementById('tabContent').innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div><h3 style="margin-bottom:12px">Descri\u00e7\u00e3o</h3><p style="font-size:.9em;color:#555;line-height:1.6">'+(p.descricao||'Sem descri\u00e7\u00e3o')+'</p></div><div><h3 style="margin-bottom:12px">Informa\u00e7\u00f5es</h3><div class="info-grid"><div class="info-item"><div class="label">Categoria</div><div class="val">'+(p.categoria||'-')+'</div></div><div class="info-item"><div class="label">Resp.</div><div class="val">'+p.responsavel+'</div></div><div class="info-item"><div class="label">Prioridade</div><div class="val">'+p.prioridade+'</div></div><div class="info-item"><div class="label">Or\u00e7amento</div><div class="val">'+(p.orcamento||'-')+'</div></div><div class="info-item"><div class="label">In\u00edcio</div><div class="val">'+formatDate(p.data_inicio)+'</div></div><div class="info-item"><div class="label">Fim</div><div class="val">'+formatDate(p.data_fim)+'</div></div></div></div></div>';
@@ -459,7 +518,7 @@ function recalcProgress(pid){
 function renderFeedback(p){
   var tc=document.getElementById('tabContent');tc.innerHTML='<p style="color:#999">Carregando...</p>';
   apiGet('feedbacks','?projeto_id=eq.'+p.id+'&order=created_at.desc').then(function(fbs){
-    var list=fbs.map(function(f){return'<div class="fb-card-wrap" style="background:var(--light);border-radius:10px;padding:15px;margin-bottom:10px;position:relative"><button class="fb-delete-btn" onclick="event.stopPropagation();deleteFeedback('+f.id+','+p.id+')" title="Excluir">&times;</button><div style="display:flex;justify-content:space-between;margin-bottom:6px;padding-right:24px"><b>'+f.autor+'</b><span style="color:#999;font-size:.8em">'+formatDate(f.created_at)+'</span></div><div style="color:#F5842B;margin-bottom:6px">'+genStars(f.nota)+'</div><p style="color:#666;font-size:.88em">'+(f.comentario||'')+'</p></div>';}).join('');
+    var list=fbs.map(function(f){return'<div class="fb-card-wrap" style="background:var(--light);border-radius:10px;padding:15px;margin-bottom:10px;position:relative"><button class="fb-delete-btn hide-viewer" onclick="event.stopPropagation();deleteFeedback('+f.id+','+p.id+')" title="Excluir">&times;</button><div style="display:flex;justify-content:space-between;margin-bottom:6px;padding-right:24px"><b>'+f.autor+'</b><span style="color:#999;font-size:.8em">'+formatDate(f.created_at)+'</span></div><div style="color:#F5842B;margin-bottom:6px">'+genStars(f.nota)+'</div><p style="color:#666;font-size:.88em">'+(f.comentario||'')+'</p></div>';}).join('');
     tc.innerHTML=list+'<div style="background:var(--light);border-radius:12px;padding:20px;margin-top:20px"><h3 style="margin-bottom:12px">Novo Feedback</h3><div id="starRating" style="font-size:1.5em;color:#ddd;cursor:pointer;margin-bottom:12px"><span onmouseover="hoverStar(1)" onmouseout="resetStars()" onclick="setRating(1)">&#9734;</span><span onmouseover="hoverStar(2)" onmouseout="resetStars()" onclick="setRating(2)">&#9734;</span><span onmouseover="hoverStar(3)" onmouseout="resetStars()" onclick="setRating(3)">&#9734;</span><span onmouseover="hoverStar(4)" onmouseout="resetStars()" onclick="setRating(4)">&#9734;</span><span onmouseover="hoverStar(5)" onmouseout="resetStars()" onclick="setRating(5)">&#9734;</span></div><input type="text" id="fbAutor" placeholder="Seu nome" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:8px;margin-bottom:10px;font-family:inherit"><textarea id="fbText" placeholder="Coment\u00e1rio..." style="width:100%;height:80px;border:1px solid #ddd;border-radius:8px;padding:10px;font-family:inherit;resize:vertical"></textarea><button class="btn btn-primary" onclick="submitFeedback('+p.id+')" style="margin-top:10px">Enviar</button></div>';
   });
 }
@@ -480,7 +539,7 @@ function submitFeedback(pid){
 function renderDocuments(p){
   var tc=document.getElementById('tabContent');tc.innerHTML='<p style="color:#999">Carregando...</p>';
   apiGet('documentos','?projeto_id=eq.'+p.id+'&order=created_at.desc').then(function(docs){
-    var list=docs.map(function(d){return'<div class="doc-card" onclick="window.open(\''+d.url+'\',\'_blank\')"><div style="font-size:2em;margin-bottom:8px">'+(d.tipo||'DOC')+'</div><div style="font-weight:600;font-size:.85em">'+d.nome+'</div><div style="color:#999;font-size:.72em;margin-top:4px">'+formatDate(d.created_at)+'</div><div class="doc-actions"><button class="doc-btn doc-btn-rename" onclick="event.stopPropagation();renameDocument('+d.id+','+p.id+')">\u270E Renomear</button><button class="doc-btn doc-btn-delete" onclick="event.stopPropagation();deleteDocument('+d.id+','+p.id+')">\u2715 Excluir</button></div></div>';}).join('');
+    var list=docs.map(function(d){return'<div class="doc-card" onclick="window.open(\''+d.url+'\',\'_blank\')"><div style="font-size:2em;margin-bottom:8px">'+(d.tipo||'DOC')+'</div><div style="font-weight:600;font-size:.85em">'+d.nome+'</div><div style="color:#999;font-size:.72em;margin-top:4px">'+formatDate(d.created_at)+'</div><div class="doc-actions hide-viewer"><button class="doc-btn doc-btn-rename" onclick="event.stopPropagation();renameDocument('+d.id+','+p.id+')">\\u270E Renomear</button><button class="doc-btn doc-btn-delete" onclick="event.stopPropagation();deleteDocument('+d.id+','+p.id+')">\\u2715 Excluir</button></div></div>';}).join('');
     tc.innerHTML='<div class="doc-grid">'+list+'</div><div style="margin-top:20px;padding:20px;background:var(--light);border-radius:12px;border:2px dashed #ccc;text-align:center"><input type="file" id="fileInput" style="display:none" onchange="uploadDocument('+p.id+')"><button class="btn btn-secondary" onclick="document.getElementById(\'fileInput\').click()">Fazer Upload</button><p style="color:#999;font-size:.82em;margin-top:8px">Clique para enviar documentos</p></div>';
   });
 }
@@ -856,14 +915,10 @@ function renameDocument(docId,pid){
 function showLoading(){document.getElementById('loadingSpinner').classList.add('show');}
 function hideLoading(){document.getElementById('loadingSpinner').classList.remove('show');}
 
-function toggleSidebar(){
-  var sb=document.querySelector('.sidebar');
-  sb.classList.toggle('open');
-}
+function toggleSidebar(){document.querySelector('.sidebar').classList.toggle('open');}
 
 function updateBreadcrumbs(parts){
-  var el=document.getElementById('breadcrumbs');
-  if(!el)return;
+  var el=document.getElementById('breadcrumbs');if(!el)return;
   var html='';
   parts.forEach(function(p,i){
     if(i>0)html+='<span class="sep">&rsaquo;</span>';
@@ -873,50 +928,277 @@ function updateBreadcrumbs(parts){
   el.innerHTML=html;
 }
 
-// Keyboard shortcuts
 document.addEventListener('keydown',function(e){
-  // ESC = close any open modal
-  if(e.key==='Escape'){
-    document.querySelectorAll('.modal-overlay.show').forEach(function(m){m.classList.remove('show');});
-  }
-  // Ctrl+N = new project
-  if(e.ctrlKey&&e.key==='n'){
-    e.preventDefault();
-    navigateTo('novo',document.querySelectorAll('.sidebar nav a')[2]);
-  }
-  // Enter = save in open modal (if focused inside modal)
+  if(e.key==='Escape'){document.querySelectorAll('.modal-overlay.show').forEach(function(m){m.classList.remove('show');});}
+  if(e.ctrlKey&&e.key==='n'){e.preventDefault();navigateTo('novo',document.querySelectorAll('.sidebar nav a')[2]);}
   if(e.key==='Enter'&&!e.shiftKey){
     var editM=document.getElementById('editModal');
     var ganhoM=document.getElementById('ganhoModal');
-    if(editM&&editM.classList.contains('show')){
-      var active=document.activeElement;
-      if(active&&active.tagName!=='TEXTAREA'){e.preventDefault();saveProject();}
-    }
-    if(ganhoM&&ganhoM.classList.contains('show')){
-      var active2=document.activeElement;
-      if(active2&&active2.tagName!=='TEXTAREA'){e.preventDefault();saveGanho();}
-    }
+    if(editM&&editM.classList.contains('show')){var a=document.activeElement;if(a&&a.tagName!=='TEXTAREA'){e.preventDefault();saveProject();}}
+    if(ganhoM&&ganhoM.classList.contains('show')){var a2=document.activeElement;if(a2&&a2.tagName!=='TEXTAREA'){e.preventDefault();saveGanho();}}
   }
 });
 
-// Auto-close sidebar on mobile when navigating
-var _origNavigateTo=navigateTo;
-// Already defined above, let's just ensure sidebar closes on mobile
 (function(){
-  var origNav=window.navigateTo||function(){};
-  // Close sidebar on mobile after navigation is a visual enhancement
   document.addEventListener('click',function(e){
     var sb=document.querySelector('.sidebar');
     var hBtn=document.getElementById('hamburgerBtn');
-    if(sb&&sb.classList.contains('open')&&!sb.contains(e.target)&&e.target!==hBtn&&!hBtn.contains(e.target)){
+    if(sb&&sb.classList.contains('open')&&!sb.contains(e.target)&&e.target!==hBtn&&(!hBtn||!hBtn.contains(e.target))){
       sb.classList.remove('open');
     }
   });
 })();
 
+// ============================================================
+// SPRINT 5: AUTHENTICATION & USER MANAGEMENT
+// ============================================================
+
+var sbClient=null,currentUser=null,currentRole='visualizador';
+var ADMIN_EMAIL='marcello.bueno@claro.com.br';
+
+function initAuth(){
+  sbClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  sbClient.auth.getSession().then(function(res){
+    var session=(res&&res.data)?res.data.session:null;
+    if(session){handleSession(session);}
+    else{document.getElementById('loginOverlay').classList.remove('hidden');}
+  });
+  sbClient.auth.onAuthStateChange(function(event,session){
+    if(event==='SIGNED_OUT'){
+      document.getElementById('loginOverlay').classList.remove('hidden');
+      document.body.className='';
+    }
+  });
+}
+
+function handleSession(session){
+  if(!session||!session.user)return;
+  currentUser=session.user;
+  // Update API headers with JWT token
+  H['Authorization']='Bearer '+session.access_token;
+  HG['Authorization']='Bearer '+session.access_token;
+
+  // Fetch or create perfil
+  apiGet('perfis','?id=eq.'+currentUser.id).then(function(perfis){
+    if(perfis&&perfis.length>0){
+      var perfil=perfis[0];
+      if(!perfil.ativo){
+        showToast('Conta desativada. Contate o Admin.','error');
+        doLogout();return;
+      }
+      completeLogin(perfil);
+    } else {
+      // Auto-create perfil for first login
+      var meta=currentUser.user_metadata||{};
+      var nome=meta.nome||currentUser.email.split('@')[0];
+      var isAdmin=currentUser.email.toLowerCase()===ADMIN_EMAIL.toLowerCase();
+      var role=isAdmin?'admin':'visualizador';
+      var ativo=isAdmin?true:false;
+      fetch(API+'/perfis',{method:'POST',headers:H,body:JSON.stringify({id:currentUser.id,nome:nome,email:currentUser.email,role:role,ativo:ativo})}).then(function(r){return r.json();}).then(function(r){
+        if(r&&r.length){
+          if(!r[0].ativo){
+            showToast('Conta criada! Aguarde aprova\u00e7\u00e3o do Admin.','alert');
+            doLogout();return;
+          }
+          completeLogin(r[0]);
+        } else {
+          // RLS might block - try fetching again
+          showToast('Registrado! Aguarde aprova\u00e7\u00e3o do Admin.','alert');
+          doLogout();
+        }
+      });
+    }
+  });
+}
+
+function completeLogin(perfil){
+  currentRole=perfil.role||'visualizador';
+  document.getElementById('loginOverlay').classList.add('hidden');
+
+  // Update header UI
+  var initials=perfil.nome.split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase();
+  document.getElementById('userName').textContent=perfil.nome.split(' ')[0];
+  document.getElementById('userAvatar').textContent=initials;
+  var badge=document.getElementById('userRoleBadge');
+  badge.textContent=currentRole.charAt(0).toUpperCase()+currentRole.slice(1);
+  badge.className='role-badge-sm '+currentRole;
+
+  applyRoleAccess();
+  loadDashboard();
+}
+
+function applyRoleAccess(){
+  document.body.className='role-'+currentRole;
+  // Admin sees admin nav
+  var adminNav=document.getElementById('navAdmin');
+  if(adminNav){adminNav.style.display=(currentRole==='admin')?'flex':'none';}
+}
+
+function switchAuthTab(tab){
+  var btns=document.querySelectorAll('#authTabs button');
+  btns[0].className=(tab==='login')?'active':'';
+  btns[1].className=(tab==='register')?'active':'';
+  document.getElementById('loginForm').style.display=(tab==='login')?'block':'none';
+  document.getElementById('registerForm').style.display=(tab==='register')?'block':'none';
+  document.getElementById('authError').textContent='';
+  document.getElementById('regError').textContent='';
+}
+
+function doLogin(){
+  var email=document.getElementById('authEmail').value.trim();
+  var pw=document.getElementById('authPassword').value;
+  var errEl=document.getElementById('authError');
+  if(!email||!pw){errEl.textContent='Preencha email e senha';return;}
+  errEl.textContent='';
+  document.getElementById('authBtn').disabled=true;
+  sbClient.auth.signInWithPassword({email:email,password:pw}).then(function(res){
+    document.getElementById('authBtn').disabled=false;
+    if(res.error){errEl.textContent=res.error.message;return;}
+    handleSession(res.data.session);
+  });
+}
+
+function doRegister(){
+  var nome=document.getElementById('regNome').value.trim();
+  var email=document.getElementById('regEmail').value.trim();
+  var pw=document.getElementById('regPassword').value;
+  var errEl=document.getElementById('regError');
+  if(!nome||!email||!pw){errEl.textContent='Preencha todos os campos';return;}
+  if(pw.length<6){errEl.textContent='Senha deve ter pelo menos 6 caracteres';return;}
+  errEl.textContent='';
+  sbClient.auth.signUp({email:email,password:pw,options:{data:{nome:nome}}}).then(function(res){
+    if(res.error){errEl.textContent=res.error.message;return;}
+    if(res.data&&res.data.session){
+      handleSession(res.data.session);
+    } else {
+      showToast('Conta criada! Verifique seu email ou aguarde aprova\u00e7\u00e3o.','success');
+      switchAuthTab('login');
+    }
+  });
+}
+
+function doLogout(){
+  sbClient.auth.signOut().then(function(){
+    currentUser=null;currentRole='visualizador';
+    H['Authorization']='Bearer '+SUPABASE_KEY;
+    HG['Authorization']='Bearer '+SUPABASE_KEY;
+    document.getElementById('loginOverlay').classList.remove('hidden');
+    document.body.className='';
+  });
+}
+
+// ============================================================
+// ADMIN: USER MANAGEMENT
+// ============================================================
+
+function renderAdminUsers(){
+  if(currentRole!=='admin'){showToast('Acesso negado','error');return;}
+  var container=document.getElementById('usersTableContainer');
+  container.innerHTML='<p style="color:#999">Carregando usu\u00e1rios...</p>';
+  apiGet('perfis','?order=created_at.desc').then(function(users){
+    if(!users||!users.length){container.innerHTML='<p style="color:#999">Nenhum usu\u00e1rio cadastrado.</p>';return;}
+    var roleColors={'admin':'#DA291C','lider':'#0097A9','analista':'#27AE60','visualizador':'#A7A8AA'};
+    var html='<table class="users-table"><thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Ativo</th><th>Criado em</th><th>A\u00e7\u00f5es</th></tr></thead><tbody>';
+    users.forEach(function(u){
+      var isMe=currentUser&&u.id===currentUser.id;
+      html+='<tr>';
+      html+='<td style="font-weight:600">'+u.nome+(isMe?' <span style="font-size:.7em;color:#999">(voc\u00ea)</span>':'')+'</td>';
+      html+='<td>'+u.email+'</td>';
+      html+='<td><select class="inline-select" onchange="changeUserRole(\''+u.id+'\',this.value)"'+(isMe?' disabled':'')+'>'+
+        '<option value="admin"'+(u.role==='admin'?' selected':'')+'>Admin</option>'+
+        '<option value="lider"'+(u.role==='lider'?' selected':'')+'>L\u00edder</option>'+
+        '<option value="analista"'+(u.role==='analista'?' selected':'')+'>Analista</option>'+
+        '<option value="visualizador"'+(u.role==='visualizador'?' selected':'')+'>Visualizador</option>'+
+        '</select></td>';
+      html+='<td><label style="cursor:pointer"><input type="checkbox"'+(u.ativo?' checked':'')+' onchange="toggleUserActive(\''+u.id+'\',this.checked)"'+(isMe?' disabled':'')+' style="cursor:pointer"> '+(u.ativo?'Sim':'N\u00e3o')+'</label></td>';
+      html+='<td style="font-size:.8em;color:#999">'+formatDate(u.created_at)+'</td>';
+      html+='<td>'+(isMe?'-':'<button class="btn btn-sm btn-danger" onclick="deleteUserAccount(\''+u.id+'\')">Excluir</button>')+'</td>';
+      html+='</tr>';
+    });
+    html+='</tbody></table>';
+    html+='<p style="font-size:.78em;color:#999;margin-top:12px">Total: '+users.length+' usu\u00e1rio(s)</p>';
+    container.innerHTML=html;
+  }).catch(function(e){
+    container.innerHTML='<p style="color:#E74C3C">Erro ao carregar usu\u00e1rios. Verifique se a tabela "perfis" foi criada.</p>';
+  });
+}
+
+function changeUserRole(uid,role){
+  apiPatch('perfis',uid,{role:role}).then(function(){
+    showToast('Perfil atualizado!','success');
+    renderAdminUsers();
+  }).catch(function(){showToast('Erro ao atualizar perfil','error');});
+}
+
+function toggleUserActive(uid,active){
+  apiPatch('perfis',uid,{ativo:active}).then(function(){
+    showToast(active?'Usu\u00e1rio ativado!':'Usu\u00e1rio desativado!','success');
+    renderAdminUsers();
+  }).catch(function(){showToast('Erro ao atualizar','error');});
+}
+
+function deleteUserAccount(uid){
+  if(!confirm('Excluir este usu\u00e1rio permanentemente?'))return;
+  apiDelete('perfis',uid).then(function(ok){
+    if(ok){showToast('Usu\u00e1rio exclu\u00eddo!','success');renderAdminUsers();}
+    else showToast('Erro ao excluir','error');
+  });
+}
+
+function openNewUserModal(){
+  document.getElementById('nuNome').value='';
+  document.getElementById('nuEmail').value='';
+  document.getElementById('nuSenha').value='';
+  document.getElementById('nuRole').value='analista';
+  document.getElementById('nuAtivo').value='true';
+  document.getElementById('newUserModal').classList.add('show');
+}
+
+function createUser(){
+  var nome=document.getElementById('nuNome').value.trim();
+  var email=document.getElementById('nuEmail').value.trim();
+  var senha=document.getElementById('nuSenha').value;
+  var role=document.getElementById('nuRole').value;
+  var ativo=document.getElementById('nuAtivo').value==='true';
+  if(!nome||!email||!senha){showToast('Preencha todos os campos','alert');return;}
+  if(senha.length<6){showToast('Senha deve ter pelo menos 6 caracteres','alert');return;}
+
+  showLoading();
+  // Save current admin session
+  sbClient.auth.getSession().then(function(res){
+    var adminSession=res.data.session;
+    // Create new user
+    sbClient.auth.signUp({email:email,password:senha,options:{data:{nome:nome}}}).then(function(signRes){
+      if(signRes.error){hideLoading();showToast('Erro: '+signRes.error.message,'error');return;}
+      var newUserId=signRes.data.user?signRes.data.user.id:null;
+
+      // Restore admin session immediately
+      sbClient.auth.setSession({access_token:adminSession.access_token,refresh_token:adminSession.refresh_token}).then(function(){
+        H['Authorization']='Bearer '+adminSession.access_token;
+        HG['Authorization']='Bearer '+adminSession.access_token;
+
+        if(newUserId){
+          // Create/update perfil for new user
+          fetch(API+'/perfis',{method:'POST',headers:H,body:JSON.stringify({id:newUserId,nome:nome,email:email,role:role,ativo:ativo})}).then(function(){
+            hideLoading();
+            closeModal('newUserModal');
+            showToast('Usu\u00e1rio "'+nome+'" criado!','success');
+            renderAdminUsers();
+          });
+        } else {
+          hideLoading();
+          closeModal('newUserModal');
+          showToast('Usu\u00e1rio criado! Verifique email de confirma\u00e7\u00e3o.','success');
+          renderAdminUsers();
+        }
+      });
+    });
+  });
+}
+
 
 // INIT
-document.addEventListener('DOMContentLoaded',function(){loadDashboard();});
+document.addEventListener('DOMContentLoaded',function(){initAuth();});
 </script>
 </body>
 </html>
